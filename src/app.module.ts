@@ -1,3 +1,4 @@
+import { TyphoonModule } from '@app/typhoon/typhoon.module';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -9,6 +10,8 @@ import { configOption } from './common/option/config.option';
   imports: [
     // config module
     ConfigModule.forRoot(configOption),
+
+    TyphoonModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],
