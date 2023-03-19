@@ -1,0 +1,32 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/app/stop_right_there/server/
+file_exists_behavior: OVERWRITE
+# files에서 가져온 파일들에게 권한을 어떻게 적용해야하는지 지정하는 곳입니다.
+permissions:
+  - object: /var/www/app/stop_right_there/server/
+    pattern: '**'
+    mode: 777
+    owner: ubuntu
+    group: ubuntu
+
+hooks:
+  BeforeInstall:
+    - location: scripts/before_install.sh
+
+  # ApplicationStop:
+  #   - location: scripts/stop_server.sh
+  #     timeout: 300
+  #     runas: ubuntu
+
+  # ApplicationStart:
+  #   - location: scripts/start_server.sh
+  #     timeout: 300
+  #     runas: ubuntu
+
+  ApplicationRelaod:
+    - location: scripts/reload_server.sh
+      timeout: 300
+      runas: ubuntu

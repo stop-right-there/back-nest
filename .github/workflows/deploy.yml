@@ -1,0 +1,88 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches: ['main']
+
+env:
+  AWS_DEFAULT_REGION: ${{secrets.AWS_DEFAULT_REGION}}
+  AWS_ROLE_NAME: ${{secrets.AWS_ROLE_NAME}}
+  AWS_BUCKET_NAME: ${{secrets.AWS_BUCKET_NAME}}
+  AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+  AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+  # ECR_REPOSITORY: MY_ECR_REPOSITORY # set this to your Amazon ECR repository name
+  # ECS_SERVICE: MY_ECS_SERVICE # set this to your Amazon ECS service name
+  # ECS_CLUSTER: MY_ECS_CLUSTER # set this to your Amazon ECS cluster name
+  # ECS_TASK_DEFINITION: MY_ECS_TASK_DEFINITION # set this to the path to your Amazon ECS task definition
+  # file, e.g. .aws/task-definition.json
+  # CONTAINER_NAME: MY_CONTAINER_NAME # set this to the name of the container in the
+  # containerDefinitions section of your task definition
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-viersion: [18.15.0]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: set Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: create env file
+        working-directory: ./src/config/env
+        run: |
+          touch .env
+          cat << EOF >> .production.env
+          ${{ secrets.ENV }}
+
+      - name: build
+        working-directory: ./
+        run: |
+          npm i
+          npm run build
+
+      # - name: pull and genrate DB
+      #  run: |
+      #  npm run db:prod:pull
+      #  npm run db:prod:genrate
+      # --symlinks
+      - name: zip
+        run: zip --symlinks -r server.zip .
+
+      # - name: ls
+      #   run: ls
+
+      - name: configure aws credials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{env.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{env.AWS_SECRET_ACCESS_KEY}}
+          aws-region: ap-northeast-2
+          # role-to-assume: ${{env.AWS_ROLE_NAME}}
+          # aws-region: ${{env.AWS_DEFAULT_REGION}}
+          # role-session-name: stop-right-there-deploy
+
+      # 도커 배포할
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Copy zip to s3
+        run: |
+          aws s3 cp server.zip s3://${{env.AWS_BUCKET_NAME}}/stop-right-there-back/
+
+      - name: Deploy
+        run: |
+          aws deploy create-deployment --application-name stop_right_there --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name stop_right_there_server --s3-location bucket=${{env.AWS_BUCKET_NAME}},bundleType=zip,key=stop-right-there-back/server.zip
