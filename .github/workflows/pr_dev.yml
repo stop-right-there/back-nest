@@ -37,7 +37,7 @@ jobs:
 
       - name: lint
         working-directory: ./ 
-        run: npm lint
+        run: npm run lint
 
 
       - name: build
