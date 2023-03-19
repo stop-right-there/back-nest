@@ -1,0 +1,66 @@
+name: DEV PR 
+
+on: 
+ pull_request:
+  branches: ['dev']
+
+jobs:
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-viersion: [18.15.0]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: set Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: create env file
+        working-directory: ./src/config/env
+        run: |
+          touch .env
+          cat << EOF >> .production.env
+          ${{ secrets.ENV }}
+
+    
+
+      - name: npm install
+        working-directory: ./
+        run: npm i
+
+      - name: lint
+        working-directory: ./ 
+        run: npm run lint
+
+
+      - name: build
+        working-directory: ./
+        run: npm run build
+      
+      
+      - name: if fail
+        uses: actions/github-script@0.2.0
+        with:
+          github-token: ${{github.token}}
+          script: |
+            const ref = "${{github.ref}}"
+            const pull_number = Number(ref.split("/")[2])
+            await github.pulls.createReview({
+              ...context.repo,
+              pull_number,
+              body: "빌드에 실패했거나, lint를 실패했습니다. 다시 확인해주세요. ",
+              event: "REQUEST_CHANGES"
+            })
+            await github.pulls.update({
+              ...context.repo,
+              pull_number,
+              state: "closed"
+            })
+        if: failure()
