@@ -63,4 +63,4 @@ jobs:
               pull_number,
               state: "closed"
             })
-        if: failure()                     // 이전 step이 실패했을 경우에만 이 step을 실행한다
+        if: failure()
