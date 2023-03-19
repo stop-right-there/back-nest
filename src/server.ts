@@ -10,19 +10,22 @@ import {
 import { Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as connectRedis from 'connect-redis';
 import * as cookieParser from 'cookie-parser';
 import * as expressBasicAuth from 'express-basic-auth';
-import * as expressSession from 'express-session';
+import * as session from 'express-session';
+import { Redis } from 'ioredis';
 import * as passport from 'passport';
-
 export class Application {
   private logger = new Logger();
+
   private DEV_MODE: boolean;
   private PORT: string;
   private corsOriginList: string[];
   private ADMIN_USER: string;
   private ADMIN_PASSWORD: string;
-
+  private REDIS_PORT: string;
+  private REDIS_HOST: string;
   constructor(private server: NestExpressApplication) {
     this.server = server;
     this.DEV_MODE = process.env.NODE_ENV === 'production' ? false : true;
@@ -32,6 +35,9 @@ export class Application {
       : ['*'];
     this.ADMIN_USER = process.env.ADMIN_USER || 'admin';
     this.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '1234';
+
+    this.REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+    this.REDIS_PORT = process.env.REDIS_PORT || '6379';
   }
 
   /*
@@ -72,22 +78,42 @@ export class Application {
       type: VersioningType.URI,
     });
   }
-
+  private async setUpSession() {
+    const redisClient = Redis.createClient();
+    const RedisStore = connectRedis(session);
+    this.server.use(
+      session({
+        store: new RedisStore({
+          host: this.REDIS_HOST,
+          port: Number(this.REDIS_PORT),
+          client: redisClient,
+        }),
+        secret: 'SECRET',
+        saveUninitialized: false,
+        resave: false,
+        // store: new (RedisStore(session))({
+        //   client: redisClient,
+        // }),
+        cookie: {
+          httpOnly: true,
+          secure: true,
+          maxAge: 30000, //세션이 redis에 저장되는 기간은 maxAge로 조절한다.(ms)
+        },
+      }),
+    );
+    this.server.use(passport.initialize());
+    this.server.use(passport.session());
+  }
   /**
    * global middleware set
    */
   private async setUpGlobalMiddleware() {
     this.server.enableCors({
+      //
       origin: this.corsOriginList,
       credentials: true,
     });
-    this.server.use(
-      expressSession({
-        secret: 'SECRET',
-        resave: true,
-        saveUninitialized: true,
-      }),
-    );
+
     this.server.setGlobalPrefix('api');
 
     this.server.use(cookieParser());
@@ -101,8 +127,7 @@ export class Application {
         forbidNonWhitelisted: true,
       }),
     );
-    this.server.use(passport.initialize());
-    this.server.use(passport.session());
+
     this.server.useGlobalInterceptors(
       new ClassSerializerInterceptor(this.server.get(Reflector)),
       new SuccessInterceptor(),
@@ -114,6 +139,7 @@ export class Application {
     );
   }
   async boostrap() {
+    await this.setUpSession();
     await this.setUpGlobalMiddleware();
 
     await this.server.listen(this.PORT);
