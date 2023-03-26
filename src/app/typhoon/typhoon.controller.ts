@@ -1,10 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
 
-@Controller('/typhoon')
+@Controller('/typhoons')
 export class typhoonController {
   @Get('/')
   async getTyphoonList() {
-    console.log(process.env.PORT);
     return 'hi';
   }
+
+  @Get('/:typhoon_id')
+  async getTyphoonDetail() {
+    return 'hi';
+  }
+
+
 }
