@@ -1,5 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Typhoon List API')
 @Controller('/typhoons')
 export class typhoonController {
   @Get('/')
@@ -11,6 +13,4 @@ export class typhoonController {
   async getTyphoonDetail() {
     return 'hi';
   }
-
-
 }
