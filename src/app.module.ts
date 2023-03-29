@@ -9,7 +9,7 @@ import { configOption } from './common/option/config.option';
 @Module({
   imports: [
     // config module
-    // comiit
+    // comiit//
     ConfigModule.forRoot(configOption),
 
     TyphoonModule,
