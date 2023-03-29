@@ -11,12 +11,12 @@ export class TyphoonDetailDTO {
   typhoon_id: number;
 
   @ApiProperty({
-    name: 'datetime',
-    description: '현재(최근) 태풍 날짜시간 정보',
+    name: '관측시간',
+    description: '태풍 관측 시간',
     type: 'Date',
   })
   @IsDateString()
-  datetime: number;
+  observation_date: string;
 
   @ApiProperty({
     name: 'central_latitude',

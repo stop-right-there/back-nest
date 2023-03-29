@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsNumber, IsString } from 'class-validator';
 
-export class TyphoonCreateInputDTO {
+export class TyphoonDTO {
   @ApiProperty({
     name: 'typhoon_id',
     description: '태풍 id',
@@ -24,7 +24,7 @@ export class TyphoonCreateInputDTO {
     type: 'Date',
   })
   @IsDateString()
-  start_date: number;
+  start_date: string;
 
   @ApiProperty({
     name: 'end_date',
@@ -32,5 +32,5 @@ export class TyphoonCreateInputDTO {
     type: 'Date',
   })
   @IsDateString()
-  end_date?: number;
+  end_date?: string;
 }
