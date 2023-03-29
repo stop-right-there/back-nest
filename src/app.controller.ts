@@ -1,5 +1,5 @@
-import { ApiResponse } from '@common/response/ApiResponse';
-import { apiResponeStatus } from '@common/response/ApiStatusResponse';
+import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
+import { BaseApiResponse } from '@common/response/BaseApiResponse';
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 
@@ -8,9 +8,9 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): ApiResponse<string> {
+  getHello(): BaseApiResponse<string> {
     const result = this.appService.getHello();
 
-    return new ApiResponse(apiResponeStatus.SUCCESS, result);
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, result);
   }
 }

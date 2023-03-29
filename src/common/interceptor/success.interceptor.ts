@@ -1,5 +1,5 @@
-import { ApiResponse } from '@common/response/ApiResponse';
-import { apiResponeStatus } from '@common/response/ApiStatusResponse';
+import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
+import { BaseApiResponse } from '@common/response/BaseApiResponse';
 import {
   CallHandler,
   ExecutionContext,
@@ -15,12 +15,12 @@ export class SuccessInterceptor implements NestInterceptor {
     const status_code = context.switchToHttp().getResponse().statusCode;
     return next.handle().pipe(
       map((data) => {
-        if (data instanceof ApiResponse) {
+        if (data instanceof BaseApiResponse) {
           return { ...data, status_code };
         } else {
           return {
-            is_success: apiResponeStatus.SUCCESS.is_success,
-            message: apiResponeStatus.SUCCESS.message,
+            is_success: baseApiResponeStatus.SUCCESS.is_success,
+            message: baseApiResponeStatus.SUCCESS.message,
             result: data,
             status_code,
           };
