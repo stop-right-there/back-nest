@@ -10,6 +10,7 @@ export class AppController {
   @Get()
   getHello(): ApiResponse<string> {
     /// asdf
+    /// test 2
     const result = this.appService.getHello();
 
     return new ApiResponse(apiResponeStatus.SUCCESS, result);
