@@ -4,7 +4,7 @@ import { Controller, Get } from '@nestjs/common';
 export class typhoonController {
   @Get('/')
   async getTyphoonList() {
-    console.log(process.env.PORT);
+    console.log(process.env.PORT); //w
     return 'hi';
   }
 }
