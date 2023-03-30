@@ -1,11 +1,19 @@
+import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
 import { BaseApiResponse } from '@common/response/BaseApiResponse';
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExtraModels,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { weatherMock } from './mock/weather.mock';
+import { WeatherResponse } from './res/weather.res';
 
 @Controller('/weathers')
 @ApiTags('WHEATHER')
+@ApiExtraModels(WeatherResponse)
 export class WeatherController {
   @ApiOperation({
     summary: '날씨 조회 API * 현재 목업 데이터를 응답합니다.',
@@ -30,6 +38,14 @@ export class WeatherController {
   @ApiQuery({ name: 'end_date', type: 'Date', required: false })
   @ApiQuery({ name: 'forecast_days', type: 'Date', required: false })
   @ApiQuery({ name: 'city', type: 'sting', required: false })
+  @SwaggerResponse(
+    200,
+    WeatherResponse,
+    false,
+    '성공',
+    baseApiResponeStatus.SUCCESS,
+    weatherMock,
+  )
   @Get('')
   async getTyphoonList(
     @Query() query: { lat: string; lon: string; startDate: string },
