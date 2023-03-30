@@ -12,7 +12,7 @@ import { weatherMock } from './mock/weather.mock';
 import { WeatherResponse } from './res/weather.res';
 
 @Controller('/weathers')
-@ApiTags('WHEATHER')
+@ApiTags('WEATHER')
 @ApiExtraModels(WeatherResponse)
 export class WeatherController {
   @ApiOperation({
