@@ -1,13 +1,15 @@
 import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
 import { BaseApiResponse } from '@common/response/BaseApiResponse';
-import { Controller, Get, Query } from '@nestjs/common';
+
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiExtraModels,
   ApiOperation,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { WeatherService } from './provider/weather.service';
 import { weatherMock } from './mock/weather.mock';
 import { WeatherResponse } from './res/weather.res';
 
@@ -15,6 +17,8 @@ import { WeatherResponse } from './res/weather.res';
 @ApiTags('WEATHER')
 @ApiExtraModels(WeatherResponse)
 export class WeatherController {
+  constructor(private readonly weatherService: WeatherService) {}
+
   @ApiOperation({
     summary: '날씨 조회 API * 현재 목업 데이터를 응답합니다.',
     description: `
@@ -52,5 +56,11 @@ export class WeatherController {
   ) {
     console.log(query);
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, weatherMock);
+  }
+
+  @Get(':lat/:lon')
+  async getCity(@Param('lat') lat: number, @Param('lon') lon: number) {
+    const cityName = await this.weatherService.getCity(lat, lon);
+    return cityName;
   }
 }
