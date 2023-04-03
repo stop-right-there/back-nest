@@ -1,7 +1,7 @@
 import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { BaseApiResponse } from '@common/response/BaseApiResponse';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import {
   ApiExtraModels,
   ApiOperation,
@@ -12,12 +12,23 @@ import {
 import { typhoon_HINAMNOR } from './mock/typhoon.mock';
 import { TyphoonDetailResponse } from './res/typhoon_detail.res';
 import { TyphoonListResponseItem } from './res/typhoon_list.res';
-import { TyphoonQuery } from './type/typhoonQuery.type';
+import { TyphoonScheduler } from './typhoon.scheduler';
+import { TyphoonService } from './typhoon.service';
 
 @Controller('/typhoons')
 @ApiTags('TYPHOON')
 @ApiExtraModels(TyphoonListResponseItem, TyphoonDetailResponse, BaseApiResponse)
 export class TyphoonController {
+  constructor(
+    private readonly typhoonService: TyphoonService,
+    private readonly typhoonScheduler: TyphoonScheduler,
+  ) {}
+
+  @Post('')
+  async getTyphoonGdacs() {
+    return await this.typhoonScheduler.observeTyphoon();
+  }
+
   @ApiOperation({
     summary:
       '태풍 리스트 조회 API * 현재는 과거 목업 데이터 한개를 반환합니다.',
@@ -57,8 +68,9 @@ export class TyphoonController {
     example: 'Sun, 28 Aug 2022 06:00:00 GMT',
   })
   @Get('/')
-  async getTyphoonList(@Query() query: TyphoonQuery) {
-    const { startDate, endDate } = query;
+  async getTyphoonList() {
+    // @Query() query: TyphoonQuery
+    // const { startDate, endDate } = query;
 
     return [typhoon_HINAMNOR];
   }
