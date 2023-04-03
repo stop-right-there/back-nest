@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { typhoonController } from './typhoon.controller';
+import { TyphoonController } from './typhoon.controller';
+import { TyphoonService } from './typhoon.service';
 
 @Module({
   imports: [],
-  controllers: [typhoonController],
-  providers: [],
+  controllers: [TyphoonController],
+  providers: [TyphoonService],
 })
 export class TyphoonModule {}

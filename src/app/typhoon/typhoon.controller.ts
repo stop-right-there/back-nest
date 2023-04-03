@@ -17,7 +17,7 @@ import { TyphoonQuery } from './type/typhoonQuery.type';
 @Controller('/typhoons')
 @ApiTags('TYPHOON')
 @ApiExtraModels(TyphoonListResponseItem, TyphoonDetailResponse, BaseApiResponse)
-export class typhoonController {
+export class TyphoonController {
   @ApiOperation({
     summary:
       '태풍 리스트 조회 API * 현재는 과거 목업 데이터 한개를 반환합니다.',
