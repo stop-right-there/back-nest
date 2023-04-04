@@ -16,7 +16,7 @@ export class TyphoonDetailDTO {
     type: 'Date',
   })
   @IsDateString()
-  observation_date: string;
+  observation_date: string | Date;
 
   @ApiProperty({
     name: 'central_latitude',

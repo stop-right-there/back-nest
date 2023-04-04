@@ -19,7 +19,7 @@ model Typhoon {
   updated_at DateTime  @default(now()) @updatedAt
 
   historical_details TyphoonDetail[]
-  arrounds           TyphoonArroundWeather[]
+  arrounds           TyphoonAroundWeather[]
 
   @@map("typhoons")
 }
@@ -42,7 +42,7 @@ model TyphoonDetail {
   @@map("typhoon_details")
 }
 
-model TyphoonArroundWeather {
+model TyphoonAroundWeather {
   typhoon_id               Int
   observation_date         DateTime
   point                    Int
@@ -65,5 +65,5 @@ model TyphoonArroundWeather {
   typhoon Typhoon @relation(fields: [typhoon_id], references: [typhoon_id])
 
   @@id([typhoon_id, observation_date, point])
-  @@map("typhoon_arround_weathers")
+  @@map("typhoon_around_weathers")
 }
