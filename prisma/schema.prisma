@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Typhoon {
+  typhoon_id Int       @id
+  name       String    @db.VarChar(30)
+  start_date DateTime
+  end_date   DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now()) @updatedAt
+
+  historical_details TyphoonDetail[]
+  arrounds           TyphoonArroundWeather[]
+
+  @@map("typhoons")
+}
+
+model TyphoonDetail {
+  typhoon_id        Int
+  observation_date  DateTime
+  central_longitude Float
+  central_latitude  Float
+  central_pressure  Float
+  maximum_wind_speed Float
+  wind_radius       Float?
+  grade             Int
+  created_at        DateTime @default(now())
+  updated_at        DateTime @default(now()) @updatedAt
+
+  typhoon Typhoon @relation(fields: [typhoon_id], references: [typhoon_id])
+
+  @@id([typhoon_id, observation_date])
+  @@map("typhoon_details")
+}
+
+model TyphoonArroundWeather {
+  typhoon_id               Int
+  observation_date         DateTime
+  point                    Int
+  temperature_2m           Float?
+  relativehumidity_2m      Float?
+  apparent_temperature     Float?
+  pressure_msl             Float?
+  cloudcover               Float?
+  cloudcover_low           Float?
+  cloudcover_mid           Float?
+  direct_normal_irradiance Float?
+  windspeed_10m            Float?
+  windspeed_100m           Float?
+  winddirection_10m        Float?
+  winddirection_100m       Float?
+  windgusts_10m            Float?
+  created_at               DateTime @default(now())
+  updated_at               DateTime @default(now()) @updatedAt
+
+  typhoon Typhoon @relation(fields: [typhoon_id], references: [typhoon_id])
+
+  @@id([typhoon_id, observation_date, point])
+  @@map("typhoon_arround_weathers")
+}
