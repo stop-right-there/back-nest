@@ -53,11 +53,11 @@ jobs:
 
       - name: db pull
         working-directory: ./
-        run: npm run db:dev:pull
+        run: npm run db:prod:pull
 
       - name: db generate
         working-directory: ./
-        run: npm run db:dev:generate
+        run: npm run db:prod:generate
 
       - name: lint
         working-directory: ./
