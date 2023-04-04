@@ -3,16 +3,20 @@ import { parseGDACS_XML } from '@common/util/parseGDACS_XML';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '@src/prisma/prisma.service';
 import { TyphoonDTO } from '../dto/typhoon.dto';
 import { TyphoonAroundWeatherDTO } from '../dto/typhoon_arount_weather.dto';
 import { TyphoonDetailDTO } from '../dto/typhoon_detail.dto';
 import { GDASCTyphoonUpdatedEvent } from '../event/typhoon-updated.envent';
-import { typhoon_HINAMNOR } from '../mock/typhoon.mock';
 
 @Injectable()
 export class TyphoonUpdatedListener {
   private readonly logger = new Logger(TyphoonUpdatedListener.name);
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   /**
    * GDACS에서 태풍정보가 업데이트될시 실행되는 이벤트입니다.
@@ -70,9 +74,28 @@ export class TyphoonUpdatedListener {
     // ======================================================================
 
     // DB에 태풍이 존재하는지 확인합니다.
-    // 현재는 DB를 구축하지 않았기에 임시로 값을 설정합니다.
-    // const exist = false;          //DB조회 코드 DB에 존재하지않는다고 가정.
-    const exist = typhoon_HINAMNOR; //DB조회 코드 DB에 존재한다고가정.
+    const typhoonFind: Prisma.TyphoonSelect = {
+      typhoon_id: true,
+      start_date: true,
+      end_date: true,
+      historical_details: {
+        select: {
+          observation_date: true,
+        },
+        orderBy: {
+          observation_date: 'desc',
+        },
+        where: {
+          observation_date,
+        },
+      },
+    };
+    const exist = await this.prisma.typhoon.findFirst({
+      select: typhoonFind,
+      where: {
+        typhoon_id: id,
+      },
+    });
 
     // ======================DB에 태풍이 존재하지 않음=======================
     if (!exist) {
@@ -80,29 +103,41 @@ export class TyphoonUpdatedListener {
       const typhoonDTO: TyphoonDTO = {
         name,
         typhoon_id: id,
-        start_date: start_date.toUTCString(),
+        start_date,
       };
 
       // DB에 태풍을 추가합니다.
       /**
        * TODO. 태풍을 추가하는 코드 작성
        */
+      try {
+        await this.prisma.typhoon.create({
+          data: typhoonDTO,
+        });
+      } catch (e) {
+        this.logger.error(e);
+      }
     }
     // =================================================================
-
     // ======================DB에 태풍이 존재하고, 관찰 날짜가 같음=======================
-    // TODO 최근날 짜와 비교하는 조건 추가
     if (exist.historical_details.length > 0) {
       this.logger.log(
         `종료된 태풍 :: typhoon_id: ${event.id}, envent_date: ${event.date}`,
       );
       // 태풍이 DB에 존재하고, 관찰 날짜가 같을경우 태풍이 종료된것을 의미합니다.
       // 따라서 태풍의 종료날짜를 업데이트합니다.
-      // TODO. 태풍 종료날짜 업데이트 코드 작성
-      /**
-       * 태풍 종료날짜 업데이트 코드 작성
-       */
-
+      try {
+        await this.prisma.typhoon.update({
+          data: {
+            end_date: observation_date,
+          },
+          where: {
+            typhoon_id: id,
+          },
+        });
+      } catch (e) {
+        this.logger.error(e);
+      }
       return; // 이후 예측 및 날씨정보 업데이트를 하지 않습니다.
     }
     // ===========================================================================
@@ -124,7 +159,7 @@ export class TyphoonUpdatedListener {
     const { pressure } = weatherData[0];
     const typhoonDetailDTO: TyphoonDetailDTO = {
       typhoon_id: id,
-      observation_date: observation_date.toUTCString(),
+      observation_date,
       central_latitude,
       central_longitude,
       maximum_wind_speed,
@@ -132,7 +167,15 @@ export class TyphoonUpdatedListener {
       //   wind_radius,
       grade,
     };
-    console.log(typhoonDetailDTO);
+    // 태풍 상세정보를 DB에 추가합니다.
+    try {
+      await this.prisma.typhoonDetail.create({
+        data: typhoonDetailDTO,
+      });
+    } catch (e) {
+      this.logger.error(e);
+    }
+
     //태풍의 중심좌표와 8개의 1000km (45도 각도)를 구합니다.
     const ninePoint = getNineCoordinates(central_latitude, central_longitude);
 
@@ -146,7 +189,7 @@ export class TyphoonUpdatedListener {
     // 이후 날씨 서비스에 있는 조회 메소드를 이용하여  ninePoint에 대한 날씨 정보를 불러옵니다.
     // 날씨 서비스가 완성되면 수정을 해야합니다.
     // 날씨 서비스를 연동하기전까지는 axioService를 이용하여 날씨 정보를 불러옵니다.
-    const arroundWeaherList: TyphoonAroundWeatherDTO[] = await Promise.all(
+    const aroundWeaherList: TyphoonAroundWeatherDTO[] = await Promise.all(
       ninePoint.map(async ({ latitude, longitude }, index) => {
         const { data } = await this.httpService.axiosRef.get(
           `https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(
@@ -179,7 +222,7 @@ export class TyphoonUpdatedListener {
         } = hourly;
         return {
           typhoon_id: id,
-          observation_date: observation_date.toUTCString(),
+          observation_date,
           point: index,
           temperature_2m: temperature_2m[Number(hour)] as number,
           relativehumidity_2m: relativehumidity_2m[Number(hour)] as number,
@@ -201,12 +244,13 @@ export class TyphoonUpdatedListener {
     );
     // ***********************************************************************************
 
-    // ********************************주변 날씨를 저장하는 코드 작성해야할부분********************************
-    // 태풍 주변 날씨 정보를 저장하는 코드를 작성해야합니다. 아직 DB를 구축하지 않았기에 생략합니다.
-    arroundWeaherList.forEach((arroundWeaher) => {
-      //arroundWeaher
-      //   console.log(arroundWeaher);
-    });
-    // **********************************************************************************************
+    //주변 날씨를 저장합니다.
+    try {
+      await this.prisma.typhoonAroundWeather.createMany({
+        data: aroundWeaherList,
+      });
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 }
