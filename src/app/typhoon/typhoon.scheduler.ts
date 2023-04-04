@@ -2,6 +2,7 @@ import { parceGDACS_HTML } from '@common/util/parseGDACS_HTML';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Cron } from '@nestjs/schedule';
 
 /**
  * @description 태풍 정보를 가져오는 스케줄러
@@ -19,12 +20,13 @@ export class TyphoonScheduler {
   private readonly logger = new Logger(TyphoonScheduler.name);
 
   /**
-   * 매시간 GDACS 사이트에서 태풍 정보를 가져옵니다.
+   * 매시간 0분에 GDACS 사이트에서 태풍 정보를 가져옵니다.
    * 만약, 현재~36시간 이내에 태풍이 발생했다면, 태풍 정보를 가져옵니다.
    * 그리고 가져온 태풍들을 기반으로 이벤트를 실행시킵니다.
    * observeTyphoon은 GDACS 사이트에 업데이트된 태풍을 감시만 합니다.
    * 새로운 스케줄이 필요할경우 새로운 함수가 필요합니다.
    */
+  @Cron('0 0 * * * *')
   async observeTyphoon() {
     this.logger.log('태풍 불러오기');
     // gdacs.org 에서 태풍 정보를 가져옵니다.
