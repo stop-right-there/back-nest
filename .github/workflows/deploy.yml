@@ -47,11 +47,25 @@ jobs:
           cat << EOF >> .production.env
           ${{ secrets.ENV }}
 
+      - name: npm install
+        working-directory: ./
+        run: npm i
+
+      - name: db pull
+        working-directory: ./
+        run: npm run db:dev:pull
+
+      - name: db generate
+        working-directory: ./
+        run: npm run db:dev:generate
+
+      - name: lint
+        working-directory: ./
+        run: npm run lint
+
       - name: build
         working-directory: ./
-        run: |
-          npm i
-          npm run build
+        run: npm run build
 
       # - name: pull and genrate DB
       #  run: |

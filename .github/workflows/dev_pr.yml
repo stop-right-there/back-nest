@@ -1,8 +1,8 @@
-name: DEV PR 
+name: DEV PR
 
-on: 
- pull_request:
-  branches: ['dev']
+on:
+  pull_request:
+    branches: ['dev']
 
 jobs:
   build:
@@ -29,22 +29,26 @@ jobs:
           cat << EOF >> .production.env
           ${{ secrets.ENV }}
 
-    
-
       - name: npm install
         working-directory: ./
         run: npm i
 
-      - name: lint
-        working-directory: ./ 
-        run: npm run lint
+      - name: pull prisma
+        working-directory: ./
+        run: npm run db:dev:pull
 
+      - name: generate prisma
+        working-directory: ./
+        run: npm run db:dev:generate
+
+      - name: lint
+        working-directory: ./
+        run: npm run lint
 
       - name: build
         working-directory: ./
         run: npm run build
-      
-      
+
       - name: if fail
         uses: actions/github-script@0.2.0
         with:
