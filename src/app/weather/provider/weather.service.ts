@@ -14,9 +14,9 @@ export class WeatherService {
       const response = await this.httpService.axiosRef.get(url);
       return response.data[0].name;
     } catch (e) {
-      throw new console.error('error');
+      throw new Error('Failed to retrieve city from API.');
+      //const response = await firstValueFrom(this.httpService.get(url));
     }
-    //const response = await firstValueFrom(this.httpService.get(url));
   }
 
   async getWeatherData(
@@ -70,7 +70,7 @@ export class WeatherService {
         return response.data;
       } catch (e) {
         console.error(e); // 에러 출력
-        throw new Error('Failed to retrieve weather data from API.'); // 예외 던지기
+        throw new Error('Failed to retrieve weather data from API.');
       }
     }
     return data;
@@ -83,7 +83,7 @@ export class WeatherService {
       const response = await this.httpService.axiosRef.get(url);
       return response;
     } catch (e) {
-      throw new console.error('error');
+      throw new Error('Failed to retrieve weather data from API.');
     }
   }
 
