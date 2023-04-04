@@ -75,4 +75,26 @@ export class WeatherService {
     }
     return data;
   }
+
+  async getCurrentOpenWeatherMap(lat: number, lon: number) {
+    //현재날씨
+    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${this.weatherAPIKey}`;
+    try {
+      const response = await this.httpService.axiosRef.get(url);
+      return response;
+    } catch (e) {
+      throw new console.error('error');
+    }
+  }
+
+  async getPastOpenWeatherMap(lat: number, lon: number, time: string) {
+    //과거날씨
+    const url = `https://api.openweathermap.org/data/3.0/onecall/timemachine?lat=${lat}&lon=${lon}&dt=${time}&appid=${this.weatherAPIKey}`;
+    try {
+      const response = await this.httpService.axiosRef.get(url);
+      return response;
+    } catch (e) {
+      throw new console.error('error');
+    }
+  }
 }
