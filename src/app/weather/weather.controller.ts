@@ -9,8 +9,8 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { WeatherService } from './provider/weather.service';
 import { weatherMock } from './mock/weather.mock';
+import { WeatherService } from './provider/weather.service';
 import { WeatherResponse } from './res/weather.res';
 
 @Controller('/weathers')
@@ -58,9 +58,25 @@ export class WeatherController {
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, weatherMock);
   }
 
-  @Get(':lat/:lon')
+  @Get(':lat/:lon') //도시 받아오기
   async getCity(@Param('lat') lat: number, @Param('lon') lon: number) {
     const cityName = await this.weatherService.getCity(lat, lon);
     return cityName;
+  }
+
+  @Get(':lat/:lon/:start_date/:end_date') //데이터 가져오기
+  async getWeather(
+    @Param('lat') lat: number,
+    @Param('lon') lon: number,
+    @Param('start_date') start_date: string,
+    @Param('end_date') end_date: string,
+  ) {
+    const weatherData = await this.weatherService.getWeatherData(
+      lat,
+      lon,
+      start_date,
+      end_date,
+    );
+    return weatherData;
   }
 }
