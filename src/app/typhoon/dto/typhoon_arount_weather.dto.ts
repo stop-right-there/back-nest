@@ -16,7 +16,7 @@ export class TyphoonAroundWeatherDTO {
     type: 'Date',
   })
   @IsDateString()
-  observation_date: string;
+  observation_date: string | Date;
 
   @ApiProperty({
     name: 'point',

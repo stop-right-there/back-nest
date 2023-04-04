@@ -24,7 +24,7 @@ export class TyphoonDTO {
     type: 'Date',
   })
   @IsDateString()
-  start_date: string;
+  start_date: string | Date;
 
   @ApiProperty({
     name: 'end_date',
@@ -32,5 +32,5 @@ export class TyphoonDTO {
     type: 'Date',
   })
   @IsDateString()
-  end_date?: string;
+  end_date?: string | Date;
 }
