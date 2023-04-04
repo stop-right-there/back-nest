@@ -4,15 +4,16 @@ import { ApiProperty } from '@nestjs/swagger';
 export class TyphoonDetailResponse extends TyphoonDTO {
   @ApiProperty({
     isArray: false,
+    required: false,
     type: () => TyphoonDetailDTO,
-    description: '현재 태풍 정보',
+    description: '현재 태풍 정보 현재 활성화중인 태풍만  값을 반환합니다.',
   })
-  current_detail: TyphoonDetailDTO;
+  current_detail?: TyphoonDetailDTO;
 
   @ApiProperty({
     isArray: true,
     type: () => TyphoonDetailDTO,
-    description: '과거 태풍 정보',
+    description: '과거 태풍 정보 리스트',
   })
   historical_details: TyphoonDetailDTO[];
   @ApiProperty({
@@ -20,6 +21,6 @@ export class TyphoonDetailResponse extends TyphoonDTO {
     type: () => TyphoonDetailDTO,
     description: '예측 태풍 정보',
   })
-  predictions: any[];
-  news: any[];
+  predictions?: any[];
+  news?: any[];
 }
