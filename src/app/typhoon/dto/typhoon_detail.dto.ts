@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsNumber } from 'class-validator';
+import { TyphoonAroundWeatherDTO } from './typhoon_arount_weather.dto';
 
 export class TyphoonDetailDTO {
   @ApiProperty({
@@ -11,7 +12,7 @@ export class TyphoonDetailDTO {
   typhoon_id: number;
 
   @ApiProperty({
-    name: '관측시간',
+    name: 'observation_date',
     description: '태풍 관측 시간',
     type: 'Date',
   })
@@ -65,4 +66,12 @@ export class TyphoonDetailDTO {
   })
   @IsNumber()
   grade: number;
+
+  @ApiProperty({
+    name: 'around_weathers',
+    description: '태풍 주변 날씨 프론트에는 해당하지않습니다',
+    type: () => TyphoonAroundWeatherDTO,
+    isArray: true,
+  })
+  arround_weathers?: TyphoonAroundWeatherDTO[];
 }
