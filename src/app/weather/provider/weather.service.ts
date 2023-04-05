@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
+import { OpenWeatherData } from '../interfaces/openWeather.interface';
 import { weatherMock } from '../mock/weather.mock';
 
 @Injectable()
@@ -30,6 +31,7 @@ export class WeatherService {
     //console.log(city);
 
     const data = [];
+
     const start = this.weatherData.hourly.time.findIndex(
       (t) => t.substring(0, 10) === start_date,
     );
@@ -75,25 +77,49 @@ export class WeatherService {
     return data;
   }
 
-  /////response 값 확인해서 필요한 값만!!!!!!
+  //open-weather map
 
-  async getCurrentOpenWeatherMap(lat: number, lon: number) {
+  async getCurrentOpenWeatherMap(
+    lat: number,
+    lon: number,
+  ): Promise<OpenWeatherData> {
     //현재날씨
     const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${this.weatherAPIKey}`;
+
     try {
       const response = await this.httpService.axiosRef.get(url);
-      return response;
+      const data = {
+        dt: response.data.current.dt,
+        temp: response.data.current.temp,
+        pressure: response.data.current.pressure,
+        humidity: response.data.current.humidity,
+        clouds: response.data.current.clouds,
+        wind_speed: response.data.current.wind_speed,
+      };
+      return data;
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
 
-  async getPastOpenWeatherMap(lat: number, lon: number, time: string) {
+  async getPastOpenWeatherMap(
+    lat: number,
+    lon: number,
+    time: string,
+  ): Promise<OpenWeatherData> {
     //과거날씨
     const url = `https://api.openweathermap.org/data/3.0/onecall/timemachine?lat=${lat}&lon=${lon}&dt=${time}&appid=${this.weatherAPIKey}`;
     try {
       const response = await this.httpService.axiosRef.get(url);
-      return response;
+      const data = {
+        dt: response.data.current.dt,
+        temp: response.data.current.temp,
+        pressure: response.data.current.pressure,
+        humidity: response.data.current.humidity,
+        clouds: response.data.current.clouds,
+        wind_speed: response.data.current.wind_speed,
+      };
+      return data;
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
