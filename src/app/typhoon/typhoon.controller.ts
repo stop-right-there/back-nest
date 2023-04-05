@@ -9,16 +9,25 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { typhoon_HINAMNOR } from './mock/typhoon.mock';
+import {
+  typhoon_HINAMNOR,
+  typhoon_predict_test_Mock,
+} from './mock/typhoon.mock';
 import { TyphoonDetailResponse } from './res/typhoon_detail.res';
 import { TyphoonListResponseItem } from './res/typhoon_list.res';
+import { TyphoonPredictionResponse } from './res/typhoon_predict_test.res';
 import { TyphoonQuery } from './type/typhoonQuery.type';
 import { TyphoonScheduler } from './typhoon.scheduler';
 import { TyphoonService } from './typhoon.service';
 
 @Controller('/typhoons')
 @ApiTags('TYPHOON')
-@ApiExtraModels(TyphoonListResponseItem, TyphoonDetailResponse, BaseApiResponse)
+@ApiExtraModels(
+  TyphoonListResponseItem,
+  TyphoonDetailResponse,
+  TyphoonPredictionResponse,
+  BaseApiResponse,
+)
 export class TyphoonController {
   constructor(
     private readonly typhoonService: TyphoonService,
@@ -125,5 +134,33 @@ export class TyphoonController {
       return new BaseApiResponse(baseApiResponeStatus.SUCCESS, { ...typhoon });
 
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoon);
+  }
+  @ApiOperation({
+    summary: '태풍 예측 API ',
+    description: `
+      특정 태풍 예측 API 입니다.
+      `,
+  })
+  @SwaggerResponse(
+    200, // status code
+    TyphoonPredictionResponse, // result에 담길 DTO
+    false, // result 가 array인지
+    '성공시', // description
+    baseApiResponeStatus.SUCCESS,
+    typhoon_predict_test_Mock,
+  )
+  @ApiParam({
+    type: 'number',
+    required: true,
+    name: 'typhoon_id',
+    example: typhoon_predict_test_Mock.typhoon_id,
+  })
+  @Get('/:typhoon_id/predict/test')
+  async predictTest(@Param() { typhoon_id }: { typhoon_id: string }) {
+    const typhoonPrediction = await this.typhoonService.predictTyphoonTest(
+      Number(typhoon_id),
+    );
+
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   }
 }

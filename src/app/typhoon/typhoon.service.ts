@@ -113,4 +113,26 @@ export class TyphoonService {
       },
     });
   }
+
+  async predictTyphoonTest(typhoon_id: number) {
+    return this.prisma.typhoon.findFirst({
+      where: {
+        typhoon_id,
+      },
+      include: {
+        historical_details: {
+          orderBy: {
+            observation_date: 'desc',
+          },
+          include: {
+            around_weathers: {
+              orderBy: {
+                point: 'asc',
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }
