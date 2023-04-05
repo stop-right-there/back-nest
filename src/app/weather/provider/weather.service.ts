@@ -1,11 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { weatherMock } from '../mock/weather.mock';
 
 @Injectable()
 export class WeatherService {
   private weatherAPIKey = process.env.WEATHER_API_KEY;
   private readonly weatherData = weatherMock;
+  private readonly logger = new Logger(WeatherService.name);
   constructor(private httpService: HttpService) {}
 
   async getCity(lat: number, lon: number): Promise<string> {
@@ -13,9 +14,8 @@ export class WeatherService {
     try {
       const response = await this.httpService.axiosRef.get(url);
       return response.data[0].name;
-    } catch (e) {
-      throw new Error('Failed to retrieve city from API.');
-      //const response = await firstValueFrom(this.httpService.get(url));
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
 
@@ -68,13 +68,14 @@ export class WeatherService {
       try {
         const response = await this.httpService.axiosRef.get(url);
         return response.data;
-      } catch (e) {
-        console.error(e); // 에러 출력
-        throw new Error('Failed to retrieve weather data from API.');
+      } catch (error) {
+        this.logger.error(`Error occurred: ${error.message}`, error.stack);
       }
     }
     return data;
   }
+
+  /////response 값 확인해서 필요한 값만!!!!!!
 
   async getCurrentOpenWeatherMap(lat: number, lon: number) {
     //현재날씨
@@ -82,8 +83,8 @@ export class WeatherService {
     try {
       const response = await this.httpService.axiosRef.get(url);
       return response;
-    } catch (e) {
-      throw new Error('Failed to retrieve weather data from API.');
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
 
@@ -93,8 +94,8 @@ export class WeatherService {
     try {
       const response = await this.httpService.axiosRef.get(url);
       return response;
-    } catch (e) {
-      throw new console.error('error');
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
 }
