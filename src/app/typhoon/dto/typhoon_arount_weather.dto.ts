@@ -11,7 +11,7 @@ export class TyphoonAroundWeatherDTO {
   typhoon_id: number;
 
   @ApiProperty({
-    name: 'datetime',
+    name: 'observation_date',
     description: '태풍 관측 시간',
     type: 'Date',
   })
