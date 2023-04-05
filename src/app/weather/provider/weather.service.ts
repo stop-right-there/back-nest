@@ -4,7 +4,7 @@ import { weatherMock } from '../mock/weather.mock';
 
 @Injectable()
 export class WeatherService {
-  private weatherAPIKey = process.env.WEATHER_API_KEY;
+  private weatherAPIKey = process.env.OPEN_WEATHER_API_KEY;
   private readonly weatherData = weatherMock;
   private readonly logger = new Logger(WeatherService.name);
   constructor(private httpService: HttpService) {}
