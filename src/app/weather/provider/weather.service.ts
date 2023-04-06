@@ -61,7 +61,7 @@ export class WeatherService {
         data.push(result);
       }
     }
-    //console.log(data.length);
+    return data;
 
     if (data.length === 1) {
       //없으면 api 불러오기 -> 저장은 나중에
@@ -74,7 +74,6 @@ export class WeatherService {
         this.logger.error(`Error occurred: ${error.message}`, error.stack);
       }
     }
-    return data;
   }
 
   //open-weather map
