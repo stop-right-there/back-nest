@@ -10,11 +10,15 @@ export class WeatherService {
   private readonly logger = new Logger(WeatherService.name);
   constructor(private httpService: HttpService) {}
 
-  async getCity(lat: number, lon: number): Promise<string> {
+  async getCity(lat: number, lon: number) {
     const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${this.weatherAPIKey}`;
     try {
       const response = await this.httpService.axiosRef.get(url);
-      return response.data[0].name;
+      const data = {
+        city: response.data[0].name,
+        country: response.data[0].country,
+      };
+      return data;
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
@@ -27,7 +31,7 @@ export class WeatherService {
     end_date: string,
   ) {
     //console.log(city, start_date, end_date);
-    const city = await this.getCity(lat, lon);
+    const cityData = await this.getCity(lat, lon);
     //console.log(city);
 
     const data = [];
@@ -40,7 +44,7 @@ export class WeatherService {
     );
     //console.log(start, end);
 
-    if (this.weatherData.city === city) {
+    if (this.weatherData.city === cityData.city) {
       for (let index = start; index <= end; index++) {
         const result = {
           temperature_2m: this.weatherData.hourly.temperature_2m[index],

@@ -69,10 +69,10 @@ export class WeatherController {
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, weatherMock);
   }
 
-  @Get(':lat/:lon') //도시 받아오기
+  @Get(':lat/:lon') //도시,국가 받아오기
   async getCity(@Param('lat') lat: number, @Param('lon') lon: number) {
-    const cityName = await this.weatherService.getCity(lat, lon);
-    return cityName;
+    const cityData = await this.weatherService.getCity(lat, lon);
+    return cityData;
   }
 
   @Get(':lat/:lon/:start_date/:end_date') //데이터 가져오기
