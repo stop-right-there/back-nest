@@ -2,13 +2,21 @@ import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
 import { BaseApiResponse } from '@common/response/BaseApiResponse';
 
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Query,
+} from '@nestjs/common';
 import {
   ApiExtraModels,
   ApiOperation,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { Cache } from 'cache-manager';
 import { weatherMock } from './mock/weather.mock';
 import { WeatherService } from './provider/weather.service';
 import { WeatherResponse } from './res/weather.res';
@@ -17,7 +25,10 @@ import { WeatherResponse } from './res/weather.res';
 @ApiTags('WEATHER')
 @ApiExtraModels(WeatherResponse)
 export class WeatherController {
-  constructor(private readonly weatherService: WeatherService) {}
+  constructor(
+    private readonly weatherService: WeatherService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @ApiOperation({
     summary: '날씨 조회 API * 현재 목업 데이터를 응답합니다.',
@@ -78,5 +89,17 @@ export class WeatherController {
       end_date,
     );
     return weatherData;
+  }
+
+  //cache test
+  @Get('/cache')
+  async getCache(): Promise<string> {
+    const savedTime = await this.cacheManager.get<number>('time');
+    if (savedTime) {
+      return 'saved time : ' + savedTime;
+    }
+    const now = new Date().getTime();
+    await this.cacheManager.set('time', now);
+    return 'save new time : ' + now;
   }
 }
