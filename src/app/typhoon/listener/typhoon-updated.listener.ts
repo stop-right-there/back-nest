@@ -120,7 +120,6 @@ export class TyphoonUpdatedListener {
     }
     // =================================================================
     // ======================DB에 태풍이 존재하고, 관찰 날짜가 같음=======================
-<<<<<<< HEAD
 
     // 보통 태풍정보는 6시간마다 업데이트됨.
     // 입력 값 예시
@@ -152,13 +151,7 @@ export class TyphoonUpdatedListener {
         `종료된 태풍 :: typhoon_id: ${event.id}, envent_date: ${event.date}`,
       );
       // 태풍이 DB에 존재하고,
-=======
-    if (exist.historical_details.length > 0) {
-      this.logger.log(
-        `종료된 태풍 :: typhoon_id: ${event.id}, envent_date: ${event.date}`,
-      );
-      // 태풍이 DB에 존재하고, 관찰 날짜가 같을경우 태풍이 종료된것을 의미합니다.
->>>>>>> FEAT/weatherService
+
       // 따라서 태풍의 종료날짜를 업데이트합니다.
       try {
         await this.prisma.typhoon.update({
@@ -176,7 +169,6 @@ export class TyphoonUpdatedListener {
     }
     // ===========================================================================
 
-<<<<<<< HEAD
     // 태풍정보가 업데이트 되지 않음.
     if (exist.historical_details.length > 0) {
       this.logger.log(
@@ -184,8 +176,7 @@ export class TyphoonUpdatedListener {
       );
       return;
     }
-=======
->>>>>>> FEAT/weatherService
+
     // ======================DB에 태풍이 존재하고, 관찰 날짜가 다름=======================
     // 아래 코드중 날씨와 관련된 코드는 모두 weather service로 변경해야합니다..
 
