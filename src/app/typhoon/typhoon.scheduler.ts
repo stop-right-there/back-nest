@@ -26,7 +26,7 @@ export class TyphoonScheduler {
    * observeTyphoon은 GDACS 사이트에 업데이트된 태풍을 감시만 합니다.
    * 새로운 스케줄이 필요할경우 새로운 함수가 필요합니다.
    */
-  @Cron('0 0 * * * *')
+  @Cron('1 * * * * *')
   async observeTyphoon() {
     this.logger.log('태풍 불러오기');
     // gdacs.org 에서 태풍 정보를 가져옵니다.

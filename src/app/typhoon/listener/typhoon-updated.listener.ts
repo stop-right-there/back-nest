@@ -139,10 +139,12 @@ export class TyphoonUpdatedListener {
     // 2021-09-01 09:00:00 11시간뒤 크롤링. 11시
 
     const now = new Date();
+    now.setHours(now.getHours() - 12);
 
     if (
       exist.historical_details.length > 0 &&
-      now.getTime() > // 6시에 00시 이후에도 데이터가 들어옴 == 태풍정보가 업데이트 되지 않음.
+      // 지닥스 업데이트 시간이 느려서 12시간전으로 설정
+      now.getTime() > // 6시에 00시 이후에도 데이터가 들어옴 == 태풍정보가 업데이트 되지 않음. \
         new Date(observation_date).getTime() // 종료됨을 의미
     ) {
       this.logger.log(
