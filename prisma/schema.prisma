@@ -16,6 +16,10 @@ model Typhoon {
   updated_at         DateTime               @default(now()) @updatedAt
   around_weathers    TyphoonAroundWeather[]
   historical_details TyphoonDetail[]
+<<<<<<< HEAD
+=======
+
+>>>>>>> FEAT/weatherService
   @@map("typhoons")
 }
 
@@ -62,3 +66,25 @@ model TyphoonAroundWeather {
   @@id([typhoon_id, observation_date, point])
   @@map("typhoon_around_weathers")
 }
+<<<<<<< HEAD
+=======
+
+model WeatherData {
+  city String
+  observation_date DateTime
+  temperature Float?
+  relativehumidity_2m Float?
+  apparent_temperature Float?
+  precipitation_probability Float?
+  rain Float?
+  showers Float?
+  weathercode Float?
+  cloudcover Float?
+  cloudcover_low Float?
+  cloudcover_mid Float?
+  cloudcover_high Float?
+
+  @@id([city, observation_date])
+  @@map("weather_data")
+}
+>>>>>>> FEAT/weatherService

@@ -1,7 +1,13 @@
 import { TyphoonModule } from '@app/typhoon/typhoon.module';
 import { WeatherModule } from '@app/weather/weather.module';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
-import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  CacheModule,
+  Logger,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';

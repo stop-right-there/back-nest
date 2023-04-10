@@ -1,5 +1,5 @@
 export const weatherMock = {
-  city: 'seoul',
+  city: 'Seoul',
   city_kr: '서울',
   latitude: 37.55,
   longitude: 127.0,
