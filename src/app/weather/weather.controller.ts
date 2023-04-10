@@ -20,6 +20,7 @@ import { Cache } from 'cache-manager';
 import { weatherMock } from './mock/weather.mock';
 import { WeatherService } from './provider/weather.service';
 import { WeatherResponse } from './res/weather.res';
+import { WeatherQuery } from './type/weatherQuery.type';
 
 @Controller('/weathers')
 @ApiTags('WEATHER')
@@ -74,24 +75,68 @@ export class WeatherController {
     const cityData = await this.weatherService.getCity(lat, lon);
     return cityData;
   }
+  /*
+날씨 데이터 가져오는 흐름도 입니다
 
-  @Get(':lat/:lon/:start_date/:end_date') //데이터 가져오기
+1. 위도 경도는 param으로, 시작날짜 / 종료 날짜 / 기간은 query로 받아옵니다.
+2. 시작날짜와 기간만 있는 경우 종료 날짜를 정해줍니다
+3. 종료날짜와 기간만 있는 경우 시작날짜를 정해줍니다.
+4. 반복문을 실행시킬 date, end_date를 설정해줍니다.
+5. 반복문을 실행하면서 (해당 date와 city 정보가 담겨있는)'yyyy-mm-dd-city' 형식의 key로 저장되어 있는 데이터가 있는지 확인합니다.
+
+**데이터가 있다면
+-> cacheManager로 불러오기
+
+**데이터가 없다면
+-> weatherService.getWeatherData 함수 실행
+-> open-meteo api를 이용해서 해당 날짜와 필요한 데이터들을 가져와 저장해줍니다.
+-> 이때 ttl은 3600초(1시간)으로 설정해두었습니다.
+*/
+  @Get(':lat/:lon') // 날씨 데이터 가져오기
   async getWeather(
     @Param('lat') lat: number,
     @Param('lon') lon: number,
-    @Param('start_date') start_date: string,
-    @Param('end_date') end_date: string,
+    @Query() query: WeatherQuery,
   ) {
-    const weatherData = await this.weatherService.getWeatherData(
-      lat,
-      lon,
-      start_date,
-      end_date,
-    );
-    return weatherData;
+    const { startDate, endDate, period } = query;
+
+    const cityData = await this.weatherService.getCity(lat, lon);
+    const city = cityData.city;
+
+    const date = startDate
+      ? new Date(startDate)
+      : new Date(new Date(endDate).getTime() - period * 24 * 60 * 60 * 1000);
+
+    const end_date = endDate
+      ? new Date(endDate)
+      : new Date(new Date(startDate).getTime() + period * 24 * 60 * 60 * 1000);
+
+    while (date <= end_date) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const key = `${yyyy}-${mm}-${dd}-${city}`;
+      date.setDate(date.getDate() + 1);
+
+      const savedWeather = await this.cacheManager.get<string>(key);
+      if (savedWeather) {
+        //있다면 불러오기
+        return savedWeather;
+      } else {
+        //없다면 api콜
+        const weatherData = await this.weatherService.getWeatherData({
+          lat,
+          lon,
+          date,
+        });
+        await this.cacheManager.set(key, weatherData, 3600);
+        return new BaseApiResponse(baseApiResponeStatus.SUCCESS, weatherData);
+      }
+    }
   }
 
-  //cache test
+  /*
+  //cache test:in-memory
   @Get('/cache')
   async getCache(): Promise<string> {
     const savedTime = await this.cacheManager.get<number>('time');
@@ -102,4 +147,5 @@ export class WeatherController {
     await this.cacheManager.set('time', now);
     return 'save new time : ' + now;
   }
+  */
 }

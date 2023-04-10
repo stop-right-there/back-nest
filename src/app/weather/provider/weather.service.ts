@@ -23,63 +23,91 @@ export class WeatherService {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
-
-  async getWeatherData(
-    lat: number,
-    lon: number,
-    start_date: string,
-    end_date: string,
-  ) {
-    //console.log(city, start_date, end_date);
-    const cityData = await this.getCity(lat, lon);
-    //console.log(city);
-
-    const data = [];
-
-    const start = this.weatherData.hourly.time.findIndex(
-      (t) => t.substring(0, 10) === start_date,
-    );
-    const end = this.weatherData.hourly.time.findIndex(
-      (t) => t.substring(0, 10) === end_date,
-    );
-    //console.log(start, end);
-
-    if (this.weatherData.city === cityData.city) {
-      for (let index = start; index <= end; index++) {
-        const result = {
-          temperature_2m: this.weatherData.hourly.temperature_2m[index],
-          relativehumidity_2m:
-            this.weatherData.hourly.relativehumidity_2m[index],
-          apparent_temperature:
-            this.weatherData.hourly.apparent_temperature[index],
-          precipitation_probability:
-            this.weatherData.hourly.precipitation_probability[index],
-          rain: this.weatherData.hourly.rain[index],
-          showers: this.weatherData.hourly.showers[index],
-          weathercode: this.weatherData.hourly.weathercode[index],
-          cloudcover: this.weatherData.hourly.cloudcover[index],
-          cloudcover_low: this.weatherData.hourly.cloudcover_low[index],
-          cloudcover_mid: this.weatherData.hourly.cloudcover_mid[index],
-          cloudcover_high: this.weatherData.hourly.cloudcover_high[index],
-        };
-        data.push(result);
-      }
-    }
-    return data;
-
-    if (data.length === 1) {
-      //없으면 api 불러오기 -> 저장은 나중에
-
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&start_date=${start_date}&end_date=${end_date}&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,rain,showers,weathercode,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high`;
-      try {
-        const response = await this.httpService.axiosRef.get(url);
-        return response.data;
-      } catch (error) {
-        this.logger.error(`Error occurred: ${error.message}`, error.stack);
-      }
+  async getWeatherData({
+    lat,
+    lon,
+    date,
+  }: {
+    lat: number;
+    lon: number;
+    date: Date;
+  }) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&start_date=${date}&end_date=${date}&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,rain,showers,weathercode,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high`;
+    try {
+      const response = await this.httpService.axiosRef.get(url);
+      const data = response.data;
+      const cityData = await this.getCity(lat, lon); //도시 받아오기
+      const city = cityData.city;
+      const key = date + '-' + city;
+      data.key = key;
+      return data;
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
+  /*
+  async getWeatherData({
+    lat,
+    lon,
+    start_date,
+    period,
+    end_date,
+  }: {
+    lat: number;
+    lon: number;
+    start_date?: Date;
+    period?: number;
+    end_date?: Date;
+  }) {
+    if (start_date && period)
+      end_date = new Date(start_date.getTime() + period * 24 * 60 * 60 * 1000);
+    if (end_date && period)
+      start_date = new Date(end_date.getTime() - period * 24 * 60 * 60 * 1000);
 
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&start_date=${start_date}&end_date=${end_date}&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,rain,showers,weathercode,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high`;
+    try {
+      const response = await this.httpService.axiosRef.get(url);
+      const result = {};
+      const data = response.data;
+      const cityData = await this.getCity(lat, lon); //도시 받아오기
+      const city = cityData.city;
+      data.hourly.time.forEach((datetime, i) => {
+        const key = datetime.split('T')[0] + '-' + city;
+        const temperature_2m = data.hourly.temperature_2m[i];
+        const relativehumidity_2m = data.hourly.relativehumidity_2m[i];
+        const apparent_temperature = data.hourly.apparent_temperature[i];
+        const precipitation_probability =
+          data.hourly.precipitation_probability[i];
+        const rain = data.hourly.rain[i];
+        const showers = data.hourly.showers[i];
+        const weathercode = data.hourly.weathercode[i];
+        const cloudcover = data.hourly.cloudcover[i];
+        const cloudcover_low = data.hourly.cloudcover_low[i];
+        const cloudcover_mid = data.hourly.cloudcover_mid[i];
+        const cloudcover_high = data.hourly.cloudcover_high[i];
+
+        if (!result[key]) result[key] = [];
+        result[key].push({
+          time: datetime,
+          temperature_2m: temperature_2m,
+          relativehumidity_2m: relativehumidity_2m,
+          apparent_temperature: apparent_temperature,
+          precipitation_probability: precipitation_probability,
+          rain: rain,
+          showers: showers,
+          weathercode: weathercode,
+          cloudcover: cloudcover,
+          cloudcover_low: cloudcover_low,
+          cloudcover_mid: cloudcover_mid,
+          cloudcover_high: cloudcover_high,
+        });
+      });
+      return result;
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`, error.stack);
+    }
+  }
+*/
   //open-weather map
 
   async getCurrentOpenWeatherMap(
