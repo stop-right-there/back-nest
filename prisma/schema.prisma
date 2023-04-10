@@ -16,7 +16,6 @@ model Typhoon {
   updated_at         DateTime               @default(now()) @updatedAt
   around_weathers    TyphoonAroundWeather[]
   historical_details TyphoonDetail[]
-
   @@map("typhoons")
 }
 
