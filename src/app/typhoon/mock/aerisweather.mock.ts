@@ -1,4 +1,6 @@
-export const aerisMock = {
+import { IAresWeatherResponse } from '../type/aerisweather.type';
+
+export const aerisMock: IAresWeatherResponse = {
   success: true,
   error: null,
   response: [
@@ -23,11 +25,11 @@ export const aerisMock = {
         maxStormCat: 'TS',
         maxStormName: 'Tropical Storm Eighteen',
         windSpeed: {
-          maxKTS: 50,
-          maxKPH: 93,
-          maxMPH: 58,
-          maxTimestamp: 1681084800,
-          maxDateTimeISO: '2023-04-10T08:00:00+08:00',
+          maxKTS: 55,
+          maxKPH: 102,
+          maxMPH: 63,
+          maxTimestamp: 1681192800,
+          maxDateTimeISO: '2023-04-11T14:00:00+08:00',
         },
         pressure: {
           minMB: null,
@@ -36,14 +38,14 @@ export const aerisMock = {
           minDateTimeISO: null,
         },
         boundingBox: [
-          -26.261892934083, 118.12862173982, -11.3, 131.84457428981,
+          -25.362111083135, 118.68202772926, -11.3, 136.93059008127,
         ],
         tz: 'Asia/Makassar',
       },
       position: {
         location: {
           type: 'Point',
-          coordinates: [122.5, -13.4],
+          coordinates: [121.8, -14.3],
         },
         details: {
           basin: 'SH',
@@ -51,52 +53,52 @@ export const aerisMock = {
           stormCat: 'TS',
           stormName: 'Tropical Cyclone Eighteen',
           stormShortName: 'Eighteen',
-          advisoryNumber: '8',
+          advisoryNumber: '11',
           movement: {
-            directionDEG: 240,
-            direction: 'WSW',
-            speedKTS: 6,
-            speedKPH: 11,
-            speedMPH: 7,
+            directionDEG: 205,
+            direction: 'SSW',
+            speedKTS: 4,
+            speedKPH: 7,
+            speedMPH: 5,
           },
           windRadii: [
             {
               quadrants: {
                 ne: {
                   loc: {
-                    long: 123.16998475987,
-                    lat: -12.747374978793,
+                    long: 122.77821122032,
+                    lat: -13.350110003927,
                   },
-                  distanceKM: 101.86,
-                  distanceMI: 63,
-                  distanceNM: 55,
+                  distanceKM: 148.16,
+                  distanceMI: 92,
+                  distanceNM: 80,
                 },
                 se: {
                   loc: {
-                    long: 123.4745011655,
-                    lat: -14.346092650512,
+                    long: 122.90047514998,
+                    lat: -15.363831404929,
                   },
-                  distanceKM: 148.16,
-                  distanceMI: 92,
-                  distanceNM: 80,
+                  distanceKM: 166.68,
+                  distanceMI: 104,
+                  distanceNM: 90,
                 },
                 sw: {
                   loc: {
-                    long: 121.5254988345,
-                    lat: -14.346092650512,
+                    long: 120.94405662285,
+                    lat: -15.127884511068,
                   },
-                  distanceKM: 148.16,
-                  distanceMI: 92,
-                  distanceNM: 80,
+                  distanceKM: 129.64,
+                  distanceMI: 81,
+                  distanceNM: 70,
                 },
                 nw: {
                   loc: {
-                    long: 121.58640039486,
-                    lat: -12.509638007017,
+                    long: 121.00519185903,
+                    lat: -13.528504746327,
                   },
-                  distanceKM: 138.9,
-                  distanceMI: 86,
-                  distanceNM: 75,
+                  distanceKM: 120.38,
+                  distanceMI: 75,
+                  distanceNM: 65,
                 },
               },
               windField: null,
@@ -104,21 +106,65 @@ export const aerisMock = {
               windSpeedKPH: 63,
               windSpeedMPH: 39,
             },
+            {
+              quadrants: {
+                ne: {
+                  loc: {
+                    long: 121.86114079945,
+                    lat: -14.240745798317,
+                  },
+                  distanceKM: 9.26,
+                  distanceMI: 6,
+                  distanceNM: 5,
+                },
+                se: {
+                  loc: {
+                    long: 121.86114079945,
+                    lat: -14.359238585817,
+                  },
+                  distanceKM: 9.26,
+                  distanceMI: 6,
+                  distanceNM: 5,
+                },
+                sw: {
+                  loc: {
+                    long: 121.37201782707,
+                    lat: -14.714337916003,
+                  },
+                  distanceKM: 64.82,
+                  distanceMI: 40,
+                  distanceNM: 35,
+                },
+                nw: {
+                  loc: {
+                    long: 121.73885920055,
+                    lat: -14.240745798317,
+                  },
+                  distanceKM: 9.26,
+                  distanceMI: 6,
+                  distanceNM: 5,
+                },
+              },
+              windField: null,
+              windSpeedKTS: 50,
+              windSpeedKPH: 93,
+              windSpeedMPH: 58,
+            },
           ],
-          windSpeedKTS: 45,
-          windSpeedKPH: 83,
-          windSpeedMPH: 52,
-          gustSpeedKTS: 55,
-          gustSpeedKPH: 102,
-          gustSpeedMPH: 63,
+          windSpeedKTS: 55,
+          windSpeedKPH: 102,
+          windSpeedMPH: 63,
+          gustSpeedKTS: 70,
+          gustSpeedKPH: 130,
+          gustSpeedMPH: 81,
           pressureMB: null,
           pressureIN: null,
         },
-        timestamp: 1681128000,
-        dateTimeISO: '2023-04-10T20:00:00+08:00',
+        timestamp: 1681192800,
+        dateTimeISO: '2023-04-11T14:00:00+08:00',
         loc: {
-          long: 122.5,
-          lat: -13.4,
+          long: 121.8,
+          lat: -14.3,
         },
       },
       track: [
@@ -805,46 +851,50 @@ export const aerisMock = {
             lat: -13.4,
           },
         },
-      ],
-      forecast: [
         {
           location: {
             type: 'Point',
-            coordinates: [121.5, -14.1],
+            coordinates: [122.1, -13.7],
           },
           details: {
             basin: 'SH',
             stormType: 'TS',
             stormCat: 'TS',
-            stormName: 'Tropical Storm Eighteen',
+            stormName: 'Tropical Cyclone Eighteen',
             stormShortName: 'Eighteen',
-            advisoryNumber: 8,
-            movement: null,
+            advisoryNumber: '9',
+            movement: {
+              directionDEG: 235,
+              direction: 'SW',
+              speedKTS: 7,
+              speedKPH: 13,
+              speedMPH: 8,
+            },
             windRadii: [
               {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 122.11086828227,
-                      lat: -13.506769119619,
+                      long: 122.77081470428,
+                      lat: -13.047370210541,
                     },
-                    distanceKM: 92.6,
-                    distanceMI: 58,
-                    distanceNM: 50,
+                    distanceKM: 101.86,
+                    distanceMI: 63,
+                    distanceNM: 55,
                   },
                   se: {
                     loc: {
-                      long: 122.47736378915,
-                      lat: -15.045936762251,
+                      long: 123.01473137377,
+                      lat: -14.587017447174,
                     },
-                    distanceKM: 148.16,
-                    distanceMI: 92,
-                    distanceNM: 80,
+                    distanceKM: 138.9,
+                    distanceMI: 86,
+                    distanceNM: 75,
                   },
                   sw: {
                     loc: {
-                      long: 120.52263621085,
-                      lat: -15.045936762251,
+                      long: 121.12429160628,
+                      lat: -14.646026226082,
                     },
                     distanceKM: 148.16,
                     distanceMI: 92,
@@ -852,15 +902,14 @@ export const aerisMock = {
                   },
                   nw: {
                     loc: {
-                      long: 120.64479811506,
-                      lat: -13.269062632595,
+                      long: 121.24624656654,
+                      lat: -12.86907958111,
                     },
                     distanceKM: 129.64,
                     distanceMI: 81,
                     distanceNM: 70,
                   },
                 },
-                windField: null,
                 windSpeedKTS: 34,
                 windSpeedKPH: 63,
                 windSpeedMPH: 39,
@@ -869,42 +918,287 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 121.62217561491,
-                      lat: -13.981474533735,
+                      long: 122.1,
+                      lat: -13.7,
                     },
-                    distanceKM: 18.52,
-                    distanceMI: 12,
-                    distanceNM: 10,
+                    distanceKM: 0,
+                    distanceMI: 0,
+                    distanceNM: 0,
                   },
                   se: {
                     loc: {
-                      long: 121.62217561491,
-                      lat: -14.218463910794,
+                      long: 122.1,
+                      lat: -13.7,
                     },
-                    distanceKM: 18.52,
-                    distanceMI: 12,
-                    distanceNM: 10,
+                    distanceKM: 0,
+                    distanceMI: 0,
+                    distanceNM: 0,
                   },
                   sw: {
                     loc: {
-                      long: 121.37782438509,
-                      lat: -14.218463910794,
+                      long: 121.67311276267,
+                      lat: -14.114375117386,
                     },
-                    distanceKM: 18.52,
-                    distanceMI: 12,
-                    distanceNM: 10,
+                    distanceKM: 64.82,
+                    distanceMI: 40,
+                    distanceNM: 35,
                   },
                   nw: {
                     loc: {
-                      long: 121.25564925979,
-                      lat: -13.862888113756,
+                      long: 122.1,
+                      lat: -13.7,
                     },
-                    distanceKM: 37.04,
-                    distanceMI: 23,
-                    distanceNM: 20,
+                    distanceKM: 0,
+                    distanceMI: 0,
+                    distanceNM: 0,
                   },
                 },
-                windField: null,
+                windSpeedKTS: 50,
+                windSpeedKPH: 93,
+                windSpeedMPH: 58,
+              },
+            ],
+            windSpeedKTS: 50,
+            windSpeedKPH: 93,
+            windSpeedMPH: 58,
+            gustSpeedKTS: 65,
+            gustSpeedKPH: 120,
+            gustSpeedMPH: 75,
+            pressureMB: null,
+            pressureIN: null,
+          },
+          timestamp: 1681149600,
+          dateTimeISO: '2023-04-11T02:00:00+08:00',
+          loc: {
+            long: 122.1,
+            lat: -13.7,
+          },
+        },
+        {
+          location: {
+            type: 'Point',
+            coordinates: [121.4, -14],
+          },
+          details: {
+            basin: 'SH',
+            stormType: 'TS',
+            stormCat: 'TS',
+            stormName: 'Tropical Cyclone Eighteen',
+            stormShortName: 'Eighteen',
+            advisoryNumber: '10',
+            movement: {
+              directionDEG: 245,
+              direction: 'WSW',
+              speedKTS: 7,
+              speedKPH: 13,
+              speedMPH: 8,
+            },
+            windRadii: [
+              {
+                quadrants: {
+                  ne: {
+                    loc: {
+                      long: 122.07166485724,
+                      lat: -13.347365714071,
+                    },
+                    distanceKM: 101.86,
+                    distanceMI: 63,
+                    distanceNM: 55,
+                  },
+                  se: {
+                    loc: {
+                      long: 122.31589070033,
+                      lat: -14.886957221182,
+                    },
+                    distanceKM: 138.9,
+                    distanceMI: 86,
+                    distanceNM: 75,
+                  },
+                  sw: {
+                    loc: {
+                      long: 120.42305498268,
+                      lat: -14.94595922444,
+                    },
+                    distanceKM: 148.16,
+                    distanceMI: 92,
+                    distanceNM: 80,
+                  },
+                  nw: {
+                    loc: {
+                      long: 120.54516453546,
+                      lat: -13.169066815122,
+                    },
+                    distanceKM: 129.64,
+                    distanceMI: 81,
+                    distanceNM: 70,
+                  },
+                },
+                windSpeedKTS: 34,
+                windSpeedKPH: 63,
+                windSpeedMPH: 39,
+              },
+              {
+                quadrants: {
+                  ne: {
+                    loc: {
+                      long: 121.46106166632,
+                      lat: -13.940744491027,
+                    },
+                    distanceKM: 9.26,
+                    distanceMI: 6,
+                    distanceNM: 5,
+                  },
+                  se: {
+                    loc: {
+                      long: 121.46106166632,
+                      lat: -14.059240233509,
+                    },
+                    distanceKM: 9.26,
+                    distanceMI: 6,
+                    distanceNM: 5,
+                  },
+                  sw: {
+                    loc: {
+                      long: 120.97257176498,
+                      lat: -14.414356628177,
+                    },
+                    distanceKM: 64.82,
+                    distanceMI: 40,
+                    distanceNM: 35,
+                  },
+                  nw: {
+                    loc: {
+                      long: 121.33893833368,
+                      lat: -13.940744491027,
+                    },
+                    distanceKM: 9.26,
+                    distanceMI: 6,
+                    distanceNM: 5,
+                  },
+                },
+                windSpeedKTS: 50,
+                windSpeedKPH: 93,
+                windSpeedMPH: 58,
+              },
+            ],
+            windSpeedKTS: 50,
+            windSpeedKPH: 93,
+            windSpeedMPH: 58,
+            gustSpeedKTS: 65,
+            gustSpeedKPH: 120,
+            gustSpeedMPH: 75,
+            pressureMB: null,
+            pressureIN: null,
+          },
+          timestamp: 1681171200,
+          dateTimeISO: '2023-04-11T08:00:00+08:00',
+          loc: {
+            long: 121.4,
+            lat: -14,
+          },
+        },
+        {
+          location: {
+            type: 'Point',
+            coordinates: [121.8, -14.3],
+          },
+          details: {
+            basin: 'SH',
+            stormType: 'TS',
+            stormCat: 'TS',
+            stormName: 'Tropical Cyclone Eighteen',
+            stormShortName: 'Eighteen',
+            advisoryNumber: '11',
+            movement: {
+              directionDEG: 205,
+              direction: 'SSW',
+              speedKTS: 4,
+              speedKPH: 7,
+              speedMPH: 5,
+            },
+            windRadii: [
+              {
+                quadrants: {
+                  ne: {
+                    loc: {
+                      long: 122.77821122032,
+                      lat: -13.350110003927,
+                    },
+                    distanceKM: 148.16,
+                    distanceMI: 92,
+                    distanceNM: 80,
+                  },
+                  se: {
+                    loc: {
+                      long: 122.90047514998,
+                      lat: -15.363831404929,
+                    },
+                    distanceKM: 166.68,
+                    distanceMI: 104,
+                    distanceNM: 90,
+                  },
+                  sw: {
+                    loc: {
+                      long: 120.94405662285,
+                      lat: -15.127884511068,
+                    },
+                    distanceKM: 129.64,
+                    distanceMI: 81,
+                    distanceNM: 70,
+                  },
+                  nw: {
+                    loc: {
+                      long: 121.00519185903,
+                      lat: -13.528504746327,
+                    },
+                    distanceKM: 120.38,
+                    distanceMI: 75,
+                    distanceNM: 65,
+                  },
+                },
+                windSpeedKTS: 34,
+                windSpeedKPH: 63,
+                windSpeedMPH: 39,
+              },
+              {
+                quadrants: {
+                  ne: {
+                    loc: {
+                      long: 121.86114079945,
+                      lat: -14.240745798317,
+                    },
+                    distanceKM: 9.26,
+                    distanceMI: 6,
+                    distanceNM: 5,
+                  },
+                  se: {
+                    loc: {
+                      long: 121.86114079945,
+                      lat: -14.359238585817,
+                    },
+                    distanceKM: 9.26,
+                    distanceMI: 6,
+                    distanceNM: 5,
+                  },
+                  sw: {
+                    loc: {
+                      long: 121.37201782707,
+                      lat: -14.714337916003,
+                    },
+                    distanceKM: 64.82,
+                    distanceMI: 40,
+                    distanceNM: 35,
+                  },
+                  nw: {
+                    loc: {
+                      long: 121.73885920055,
+                      lat: -14.240745798317,
+                    },
+                    distanceKM: 9.26,
+                    distanceMI: 6,
+                    distanceNM: 5,
+                  },
+                },
                 windSpeedKTS: 50,
                 windSpeedKPH: 93,
                 windSpeedMPH: 58,
@@ -919,17 +1213,19 @@ export const aerisMock = {
             pressureMB: null,
             pressureIN: null,
           },
-          timestamp: 1681171200,
-          dateTimeISO: '2023-04-11T08:00:00+08:00',
+          timestamp: 1681192800,
+          dateTimeISO: '2023-04-11T14:00:00+08:00',
           loc: {
-            long: 121.5,
-            lat: -14.1,
+            long: 121.8,
+            lat: -14.3,
           },
         },
+      ],
+      forecast: [
         {
           location: {
             type: 'Point',
-            coordinates: [120.6, -14.9],
+            coordinates: [121, -15.1],
           },
           details: {
             basin: 'SH',
@@ -937,46 +1233,46 @@ export const aerisMock = {
             stormCat: 'TY',
             stormName: 'Typhoon Eighteen',
             stormShortName: 'Eighteen',
-            advisoryNumber: 8,
+            advisoryNumber: 11,
             movement: null,
             windRadii: [
               {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 121.45823751283,
-                      lat: -14.069030459829,
+                      long: 121.7363139961,
+                      lat: -14.387924177844,
                     },
-                    distanceKM: 129.64,
-                    distanceMI: 81,
-                    distanceNM: 70,
+                    distanceKM: 111.12,
+                    distanceMI: 69,
+                    distanceNM: 60,
                   },
                   se: {
                     loc: {
-                      long: 121.70342483912,
-                      lat: -15.963664868932,
-                    },
-                    distanceKM: 166.68,
-                    distanceMI: 104,
-                    distanceNM: 90,
-                  },
-                  sw: {
-                    loc: {
-                      long: 119.61916687445,
-                      lat: -15.845754754121,
-                    },
-                    distanceKM: 148.16,
-                    distanceMI: 92,
-                    distanceNM: 80,
-                  },
-                  nw: {
-                    loc: {
-                      long: 119.74176248717,
-                      lat: -14.069030459829,
+                      long: 121.8590256143,
+                      lat: -15.927737336298,
                     },
                     distanceKM: 129.64,
                     distanceMI: 81,
                     distanceNM: 70,
+                  },
+                  sw: {
+                    loc: {
+                      long: 120.3864005423,
+                      lat: -15.691583958748,
+                    },
+                    distanceKM: 92.6,
+                    distanceMI: 58,
+                    distanceNM: 50,
+                  },
+                  nw: {
+                    loc: {
+                      long: 120.50911751404,
+                      lat: -14.62553905388,
+                    },
+                    distanceKM: 74.08,
+                    distanceMI: 46,
+                    distanceNM: 40,
                   },
                 },
                 windField: null,
@@ -988,8 +1284,8 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 120.72260925708,
-                      lat: -14.781480772147,
+                      long: 121.12272183803,
+                      lat: -14.981482392938,
                     },
                     distanceKM: 18.52,
                     distanceMI: 12,
@@ -997,26 +1293,26 @@ export const aerisMock = {
                   },
                   se: {
                     loc: {
-                      long: 120.84521802693,
-                      lat: -15.136842248544,
+                      long: 121.12272183803,
+                      lat: -15.218451495406,
                     },
-                    distanceKM: 37.04,
-                    distanceMI: 23,
-                    distanceNM: 20,
+                    distanceKM: 18.52,
+                    distanceMI: 12,
+                    distanceNM: 10,
                   },
                   sw: {
                     loc: {
-                      long: 120.23217417769,
-                      lat: -15.255164036269,
+                      long: 120.87727816197,
+                      lat: -15.218451495406,
                     },
-                    distanceKM: 55.56,
-                    distanceMI: 35,
-                    distanceNM: 30,
+                    distanceKM: 18.52,
+                    distanceMI: 12,
+                    distanceNM: 10,
                   },
                   nw: {
                     loc: {
-                      long: 120.35478197307,
-                      lat: -14.662896960322,
+                      long: 120.75455681055,
+                      lat: -14.862899290496,
                     },
                     distanceKM: 37.04,
                     distanceMI: 23,
@@ -1032,8 +1328,8 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 120.6,
-                      lat: -14.9,
+                      long: 121,
+                      lat: -15.1,
                     },
                     distanceKM: 0,
                     distanceMI: 0,
@@ -1041,26 +1337,26 @@ export const aerisMock = {
                   },
                   se: {
                     loc: {
-                      long: 120.72260925708,
-                      lat: -15.018454030602,
+                      long: 121,
+                      lat: -15.1,
                     },
-                    distanceKM: 18.52,
-                    distanceMI: 12,
-                    distanceNM: 10,
+                    distanceKM: 0,
+                    distanceMI: 0,
+                    distanceNM: 0,
                   },
                   sw: {
                     loc: {
-                      long: 120.47739074292,
-                      lat: -15.018454030602,
+                      long: 120.93863905057,
+                      lat: -15.159234050262,
                     },
-                    distanceKM: 18.52,
-                    distanceMI: 12,
-                    distanceNM: 10,
+                    distanceKM: 9.26,
+                    distanceMI: 6,
+                    distanceNM: 5,
                   },
                   nw: {
                     loc: {
-                      long: 120.47739074292,
-                      lat: -14.781480772147,
+                      long: 120.87727816197,
+                      lat: -14.981482392938,
                     },
                     distanceKM: 18.52,
                     distanceMI: 12,
@@ -1082,17 +1378,17 @@ export const aerisMock = {
             pressureMB: null,
             pressureIN: null,
           },
-          timestamp: 1681214400,
-          dateTimeISO: '2023-04-11T20:00:00+08:00',
+          timestamp: 1681236000,
+          dateTimeISO: '2023-04-12T02:00:00+08:00',
           loc: {
-            long: 120.6,
-            lat: -14.9,
+            long: 121,
+            lat: -15.1,
           },
         },
         {
           location: {
             type: 'Point',
-            coordinates: [119.7, -16.1],
+            coordinates: [120.3, -15.8],
           },
           details: {
             basin: 'SH',
@@ -1100,46 +1396,46 @@ export const aerisMock = {
             stormCat: 'TY',
             stormName: 'Typhoon Eighteen',
             stormShortName: 'Eighteen',
-            advisoryNumber: 8,
+            advisoryNumber: 11,
             movement: null,
             windRadii: [
               {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 120.8097332881,
-                      lat: -15.030947565568,
+                      long: 121.16187710678,
+                      lat: -14.96899692613,
                     },
-                    distanceKM: 166.68,
-                    distanceMI: 104,
-                    distanceNM: 90,
+                    distanceKM: 129.64,
+                    distanceMI: 81,
+                    distanceNM: 70,
                   },
                   se: {
                     loc: {
-                      long: 120.93302167752,
-                      lat: -17.281096982163,
-                    },
-                    distanceKM: 185.2,
-                    distanceMI: 115,
-                    distanceNM: 100,
-                  },
-                  sw: {
-                    loc: {
-                      long: 118.5902667119,
-                      lat: -17.16332376078,
-                    },
-                    distanceKM: 166.68,
-                    distanceMI: 104,
-                    distanceNM: 90,
-                  },
-                  nw: {
-                    loc: {
-                      long: 118.71355945303,
-                      lat: -15.149999818198,
+                      long: 121.28499271939,
+                      lat: -16.745545082085,
                     },
                     distanceKM: 148.16,
                     distanceMI: 92,
                     distanceNM: 80,
+                  },
+                  sw: {
+                    loc: {
+                      long: 119.56124189705,
+                      lat: -16.509592525441,
+                    },
+                    distanceKM: 111.12,
+                    distanceMI: 69,
+                    distanceNM: 60,
+                  },
+                  nw: {
+                    loc: {
+                      long: 119.68436380743,
+                      lat: -15.206760537209,
+                    },
+                    distanceKM: 92.6,
+                    distanceMI: 58,
+                    distanceNM: 50,
                   },
                 },
                 windField: null,
@@ -1151,26 +1447,26 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 120.06992849762,
-                      lat: -15.744262974204,
+                      long: 120.54625786748,
+                      lat: -15.562907813804,
                     },
-                    distanceKM: 55.56,
-                    distanceMI: 35,
-                    distanceNM: 30,
+                    distanceKM: 37.04,
+                    distanceMI: 23,
+                    distanceNM: 20,
                   },
                   se: {
                     loc: {
-                      long: 120.19323574131,
-                      lat: -16.573323124323,
+                      long: 120.54625786748,
+                      lat: -16.03681488339,
                     },
-                    distanceKM: 74.08,
-                    distanceMI: 46,
-                    distanceNM: 40,
+                    distanceKM: 37.04,
+                    distanceMI: 23,
+                    distanceNM: 20,
                   },
                   sw: {
                     loc: {
-                      long: 119.33007150238,
-                      lat: -16.45510063303,
+                      long: 119.93061440962,
+                      lat: -16.155116761495,
                     },
                     distanceKM: 55.56,
                     distanceMI: 35,
@@ -1178,12 +1474,12 @@ export const aerisMock = {
                   },
                   nw: {
                     loc: {
-                      long: 119.33007150238,
-                      lat: -15.744262974204,
+                      long: 120.05374213252,
+                      lat: -15.562907813804,
                     },
-                    distanceKM: 55.56,
-                    distanceMI: 35,
-                    distanceNM: 30,
+                    distanceKM: 37.04,
+                    distanceMI: 23,
+                    distanceNM: 20,
                   },
                 },
                 windField: null,
@@ -1195,39 +1491,39 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 119.94661980394,
-                      lat: -15.862911639785,
+                      long: 120.3,
+                      lat: -15.8,
                     },
-                    distanceKM: 37.04,
-                    distanceMI: 23,
-                    distanceNM: 20,
+                    distanceKM: 0,
+                    distanceMI: 0,
+                    distanceNM: 0,
                   },
                   se: {
                     loc: {
-                      long: 119.94661980394,
-                      lat: -16.336805522891,
+                      long: 120.3,
+                      lat: -15.8,
                     },
-                    distanceKM: 37.04,
-                    distanceMI: 23,
-                    distanceNM: 20,
+                    distanceKM: 0,
+                    distanceMI: 0,
+                    distanceNM: 0,
                   },
                   sw: {
                     loc: {
-                      long: 119.45338019606,
-                      lat: -16.336805522891,
+                      long: 120.17687082409,
+                      lat: -15.918442418977,
                     },
-                    distanceKM: 37.04,
-                    distanceMI: 23,
-                    distanceNM: 20,
+                    distanceKM: 18.52,
+                    distanceMI: 12,
+                    distanceNM: 10,
                   },
                   nw: {
                     loc: {
-                      long: 119.45338019606,
-                      lat: -15.862911639785,
+                      long: 120.17687082409,
+                      lat: -15.681488255894,
                     },
-                    distanceKM: 37.04,
-                    distanceMI: 23,
-                    distanceNM: 20,
+                    distanceKM: 18.52,
+                    distanceMI: 12,
+                    distanceNM: 10,
                   },
                 },
                 windField: null,
@@ -1245,17 +1541,17 @@ export const aerisMock = {
             pressureMB: null,
             pressureIN: null,
           },
-          timestamp: 1681257600,
-          dateTimeISO: '2023-04-12T08:00:00+08:00',
+          timestamp: 1681279200,
+          dateTimeISO: '2023-04-12T14:00:00+08:00',
           loc: {
-            long: 119.7,
-            lat: -16.1,
+            long: 120.3,
+            lat: -15.8,
           },
         },
         {
           location: {
             type: 'Point',
-            coordinates: [119.4, -17.7],
+            coordinates: [119.8, -16.7],
           },
           details: {
             basin: 'SH',
@@ -1263,46 +1559,46 @@ export const aerisMock = {
             stormCat: 'TY',
             stormName: 'Typhoon Eighteen',
             stormShortName: 'Eighteen',
-            advisoryNumber: 8,
+            advisoryNumber: 11,
             movement: null,
             windRadii: [
               {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 120.76765113749,
-                      lat: -16.392407080997,
-                    },
-                    distanceKM: 203.72,
-                    distanceMI: 127,
-                    distanceNM: 110,
-                  },
-                  se: {
-                    loc: {
-                      long: 120.76765113749,
-                      lat: -18.998132663199,
-                    },
-                    distanceKM: 203.72,
-                    distanceMI: 127,
-                    distanceNM: 110,
-                  },
-                  sw: {
-                    loc: {
-                      long: 118.28098405541,
-                      lat: -18.762852229607,
+                      long: 120.91309587086,
+                      lat: -15.630896966964,
                     },
                     distanceKM: 166.68,
                     distanceMI: 104,
                     distanceNM: 90,
                   },
+                  se: {
+                    loc: {
+                      long: 120.91309587086,
+                      lat: -17.763149179527,
+                    },
+                    distanceKM: 166.68,
+                    distanceMI: 104,
+                    distanceNM: 90,
+                  },
+                  sw: {
+                    loc: {
+                      long: 119.05791442911,
+                      lat: -17.409456775201,
+                    },
+                    distanceKM: 111.12,
+                    distanceMI: 69,
+                    distanceNM: 60,
+                  },
                   nw: {
                     loc: {
-                      long: 118.40530833796,
-                      lat: -16.749911687926,
+                      long: 119.05791442911,
+                      lat: -15.987897398965,
                     },
-                    distanceKM: 148.16,
-                    distanceMI: 92,
-                    distanceNM: 80,
+                    distanceKM: 111.12,
+                    distanceMI: 69,
+                    distanceNM: 60,
                   },
                 },
                 windField: null,
@@ -1314,8 +1610,8 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 119.89736110802,
-                      lat: -17.22556014412,
+                      long: 120.29473013012,
+                      lat: -16.225550368975,
                     },
                     distanceKM: 74.08,
                     distanceMI: 46,
@@ -1323,17 +1619,17 @@ export const aerisMock = {
                   },
                   se: {
                     loc: {
-                      long: 120.02169780471,
-                      lat: -18.291286219332,
+                      long: 120.29473013012,
+                      lat: -17.173273773866,
                     },
-                    distanceKM: 92.6,
-                    distanceMI: 58,
-                    distanceNM: 50,
+                    distanceKM: 74.08,
+                    distanceMI: 46,
+                    distanceNM: 40,
                   },
                   sw: {
                     loc: {
-                      long: 118.90263889198,
-                      lat: -18.173189283262,
+                      long: 119.30526986988,
+                      lat: -17.173273773866,
                     },
                     distanceKM: 74.08,
                     distanceMI: 46,
@@ -1341,12 +1637,12 @@ export const aerisMock = {
                   },
                   nw: {
                     loc: {
-                      long: 118.90263889198,
-                      lat: -17.22556014412,
+                      long: 119.42895071824,
+                      lat: -16.344270768411,
                     },
-                    distanceKM: 74.08,
-                    distanceMI: 46,
-                    distanceNM: 40,
+                    distanceKM: 55.56,
+                    distanceMI: 35,
+                    distanceNM: 30,
                   },
                 },
                 windField: null,
@@ -1358,8 +1654,8 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 119.77302250178,
-                      lat: -17.344285042553,
+                      long: 120.17104928176,
+                      lat: -16.344270768411,
                     },
                     distanceKM: 55.56,
                     distanceMI: 35,
@@ -1367,8 +1663,8 @@ export const aerisMock = {
                   },
                   se: {
                     loc: {
-                      long: 119.77302250178,
-                      lat: -18.055011524234,
+                      long: 120.17104928176,
+                      lat: -17.05506782482,
                     },
                     distanceKM: 55.56,
                     distanceMI: 35,
@@ -1376,21 +1672,21 @@ export const aerisMock = {
                   },
                   sw: {
                     loc: {
-                      long: 119.02697749822,
-                      lat: -18.055011524234,
+                      long: 119.55263301019,
+                      lat: -16.936786446959,
                     },
-                    distanceKM: 55.56,
-                    distanceMI: 35,
-                    distanceNM: 30,
+                    distanceKM: 37.04,
+                    distanceMI: 23,
+                    distanceNM: 20,
                   },
                   nw: {
                     loc: {
-                      long: 119.02697749822,
-                      lat: -17.344285042553,
+                      long: 119.55263301019,
+                      lat: -16.462919598566,
                     },
-                    distanceKM: 55.56,
-                    distanceMI: 35,
-                    distanceNM: 30,
+                    distanceKM: 37.04,
+                    distanceMI: 23,
+                    distanceNM: 20,
                   },
                 },
                 windField: null,
@@ -1399,26 +1695,26 @@ export const aerisMock = {
                 windSpeedMPH: 74,
               },
             ],
-            windSpeedKTS: 115,
-            windSpeedKPH: 213,
-            windSpeedMPH: 132,
-            gustSpeedKTS: 140,
-            gustSpeedKPH: 259,
-            gustSpeedMPH: 161,
+            windSpeedKTS: 105,
+            windSpeedKPH: 194,
+            windSpeedMPH: 121,
+            gustSpeedKTS: 130,
+            gustSpeedKPH: 241,
+            gustSpeedMPH: 150,
             pressureMB: null,
             pressureIN: null,
           },
-          timestamp: 1681300800,
-          dateTimeISO: '2023-04-12T20:00:00+08:00',
+          timestamp: 1681322400,
+          dateTimeISO: '2023-04-13T02:00:00+08:00',
           loc: {
-            long: 119.4,
-            lat: -17.7,
+            long: 119.8,
+            lat: -16.7,
           },
         },
         {
           location: {
             type: 'Point',
-            coordinates: [121.6, -20.4],
+            coordinates: [119.9, -17.9],
           },
           details: {
             basin: 'SH',
@@ -1426,15 +1722,15 @@ export const aerisMock = {
             stormCat: 'TY',
             stormName: 'Typhoon Eighteen',
             stormShortName: 'Eighteen',
-            advisoryNumber: 8,
+            advisoryNumber: 11,
             movement: null,
             windRadii: [
               {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 122.86337160605,
-                      lat: -19.211358665209,
+                      long: 121.1447049619,
+                      lat: -16.711624971801,
                     },
                     distanceKM: 185.2,
                     distanceMI: 115,
@@ -1442,8 +1738,8 @@ export const aerisMock = {
                   },
                   se: {
                     loc: {
-                      long: 122.61071961479,
-                      lat: -21.34439209345,
+                      long: 120.89578684943,
+                      lat: -18.845035600755,
                     },
                     distanceKM: 148.16,
                     distanceMI: 92,
@@ -1451,21 +1747,21 @@ export const aerisMock = {
                   },
                   sw: {
                     loc: {
-                      long: 120.71561219666,
-                      lat: -21.226674352008,
+                      long: 119.15314651776,
+                      lat: -18.609270096928,
+                    },
+                    distanceKM: 111.12,
+                    distanceMI: 69,
+                    distanceNM: 60,
+                  },
+                  nw: {
+                    loc: {
+                      long: 119.02867816584,
+                      lat: -17.068928951745,
                     },
                     distanceKM: 129.64,
                     distanceMI: 81,
                     distanceNM: 70,
-                  },
-                  nw: {
-                    loc: {
-                      long: 120.46295229575,
-                      lat: -19.330612326625,
-                    },
-                    distanceKM: 166.68,
-                    distanceMI: 104,
-                    distanceNM: 90,
                   },
                 },
                 windField: null,
@@ -1477,17 +1773,17 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 122.23171487648,
-                      lat: -19.806772971501,
+                      long: 120.39790867581,
+                      lat: -17.425562339301,
                     },
-                    distanceKM: 92.6,
-                    distanceMI: 58,
-                    distanceNM: 50,
+                    distanceKM: 74.08,
+                    distanceMI: 46,
+                    distanceNM: 40,
                   },
                   se: {
                     loc: {
-                      long: 122.10537469183,
-                      lat: -20.872947385457,
+                      long: 120.39790867581,
+                      lat: -18.373172051221,
                     },
                     distanceKM: 74.08,
                     distanceMI: 46,
@@ -1495,8 +1791,8 @@ export const aerisMock = {
                   },
                   sw: {
                     loc: {
-                      long: 121.09462530817,
-                      lat: -20.872947385457,
+                      long: 119.40209132419,
+                      lat: -18.373172051221,
                     },
                     distanceKM: 74.08,
                     distanceMI: 46,
@@ -1504,12 +1800,12 @@ export const aerisMock = {
                   },
                   nw: {
                     loc: {
-                      long: 121.09462530817,
-                      lat: -19.925596162811,
+                      long: 119.52656682521,
+                      lat: -17.544288085745,
                     },
-                    distanceKM: 74.08,
-                    distanceMI: 46,
-                    distanceNM: 40,
+                    distanceKM: 55.56,
+                    distanceMI: 35,
+                    distanceNM: 30,
                   },
                 },
                 windField: null,
@@ -1521,8 +1817,8 @@ export const aerisMock = {
                 quadrants: {
                   ne: {
                     loc: {
-                      long: 121.9790326467,
-                      lat: -20.044331167584,
+                      long: 120.27343317479,
+                      lat: -17.544288085745,
                     },
                     distanceKM: 55.56,
                     distanceMI: 35,
@@ -1530,17 +1826,17 @@ export const aerisMock = {
                   },
                   se: {
                     loc: {
-                      long: 121.85268920627,
-                      lat: -20.63665861877,
+                      long: 120.27343317479,
+                      lat: -18.255000023014,
                     },
-                    distanceKM: 37.04,
-                    distanceMI: 23,
-                    distanceNM: 20,
+                    distanceKM: 55.56,
+                    distanceMI: 35,
+                    distanceNM: 30,
                   },
                   sw: {
                     loc: {
-                      long: 121.34731079373,
-                      lat: -20.63665861877,
+                      long: 119.6510437559,
+                      lat: -18.136746891186,
                     },
                     distanceKM: 37.04,
                     distanceMI: 23,
@@ -1548,8 +1844,8 @@ export const aerisMock = {
                   },
                   nw: {
                     loc: {
-                      long: 121.34731079373,
-                      lat: -20.16297728112,
+                      long: 119.6510437559,
+                      lat: -17.66293671718,
                     },
                     distanceKM: 37.04,
                     distanceMI: 23,
@@ -1562,26 +1858,56 @@ export const aerisMock = {
                 windSpeedMPH: 74,
               },
             ],
-            windSpeedKTS: 100,
-            windSpeedKPH: 185,
-            windSpeedMPH: 115,
-            gustSpeedKTS: 125,
-            gustSpeedKPH: 232,
-            gustSpeedMPH: 144,
+            windSpeedKTS: 120,
+            windSpeedKPH: 222,
+            windSpeedMPH: 138,
+            gustSpeedKTS: 145,
+            gustSpeedKPH: 269,
+            gustSpeedMPH: 167,
             pressureMB: null,
             pressureIN: null,
           },
-          timestamp: 1681387200,
-          dateTimeISO: '2023-04-13T20:00:00+08:00',
+          timestamp: 1681365600,
+          dateTimeISO: '2023-04-13T14:00:00+08:00',
           loc: {
-            long: 121.6,
-            lat: -20.4,
+            long: 119.9,
+            lat: -17.9,
           },
         },
         {
           location: {
             type: 'Point',
-            coordinates: [129.8, -24.4],
+            coordinates: [124.3, -20.9],
+          },
+          details: {
+            basin: 'SH',
+            stormType: 'TY',
+            stormCat: 'TY',
+            stormName: 'Typhoon Eighteen',
+            stormShortName: 'Eighteen',
+            advisoryNumber: 11,
+            movement: null,
+            windRadii: null,
+            windSpeedKTS: 70,
+            windSpeedKPH: 130,
+            windSpeedMPH: 81,
+            gustSpeedKTS: 85,
+            gustSpeedKPH: 157,
+            gustSpeedMPH: 98,
+            pressureMB: null,
+            pressureIN: null,
+          },
+          timestamp: 1681452000,
+          dateTimeISO: '2023-04-14T14:00:00+08:00',
+          loc: {
+            long: 124.3,
+            lat: -20.9,
+          },
+        },
+        {
+          location: {
+            type: 'Point',
+            coordinates: [134.9, -23.5],
           },
           details: {
             basin: 'SH',
@@ -1589,7 +1915,7 @@ export const aerisMock = {
             stormCat: 'TD',
             stormName: 'Tropical Depression Eighteen',
             stormShortName: 'Eighteen',
-            advisoryNumber: 8,
+            advisoryNumber: 11,
             movement: null,
             windRadii: null,
             windSpeedKTS: 30,
@@ -1601,11 +1927,11 @@ export const aerisMock = {
             pressureMB: null,
             pressureIN: null,
           },
-          timestamp: 1681473600,
-          dateTimeISO: '2023-04-14T20:00:00+08:00',
+          timestamp: 1681538400,
+          dateTimeISO: '2023-04-15T14:00:00+08:00',
           loc: {
-            long: 129.8,
-            lat: -24.4,
+            long: 134.9,
+            lat: -23.5,
           },
         },
       ],
