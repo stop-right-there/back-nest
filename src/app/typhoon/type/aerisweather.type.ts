@@ -1,4 +1,3 @@
-import { IPosition } from './aerisweather.type';
 export const aresWeatherURL = ({
   client_id,
   client_secret,
@@ -19,10 +18,10 @@ export interface IAresWeatherData {
   profile: IAresWeatherTCProfile;
   position: IPosition;
   track: ITrack[];
-  forcast: IForecast[];
-  breackPointAlerts: IBreakPointAlerts[];
-  errorCone: IErrorCone;
-  relativeTo: IRelativeTo;
+  forecast: IForecast[];
+  breakPointAlerts?: IBreakPointAlerts[];
+  errorCone?: IErrorCone;
+  relativeTo?: IRelativeTo;
 }
 
 export interface IAresWeatherTCProfile {
@@ -30,7 +29,7 @@ export interface IAresWeatherTCProfile {
   year: number;
   basinOrigin: string;
   basinCurrent: string;
-  basins: [];
+  basins: any[];
   event: number;
   isActive: boolean;
   lifespan: ILifespan;
@@ -38,7 +37,8 @@ export interface IAresWeatherTCProfile {
   maxStormCat: MaxStormCat;
   windSpeed: IWindSpeed;
   pressure: IPressure;
-
+  productEvent: number;
+  maxStormName: string;
   boundingBox: number[];
   tz: string;
 }
@@ -49,7 +49,9 @@ export interface ILifespan {
   endTimestamp: number;
   endDateTimeISO: string;
 }
+
 export type MaxStormType = 'TD' | 'TS' | 'H' | 'TY';
+
 export type MaxStormCat =
   | 'TD'
   | 'TS'
@@ -69,10 +71,10 @@ export interface IWindSpeed {
 }
 
 export interface IPressure {
-  minMB: number;
-  minIn: number;
-  minTimestamp: number;
-  minDateTimeISO: string;
+  minMB?: number | null;
+  minIN?: number | null;
+  minTimestamp?: number;
+  minDateTimeISO?: string;
 }
 
 export interface IPosition {
@@ -96,7 +98,7 @@ export interface IDetails {
   stormCat: MaxStormCat;
   stormName: string;
   stormShortName: string;
-  advisoryNumber: string;
+  advisoryNumber: string | number;
   basin: string;
   movement: IMovement;
   windSpeedKTS: number;
@@ -105,8 +107,8 @@ export interface IDetails {
   gustSpeedKTS: number;
   gustSpeedKPH: number;
   gustSpeedMPH: number;
-  pressureMB: number;
-  pressureIN: number;
+  pressureMB?: number;
+  pressureIN?: number;
   windRadii: IPositionDetailsWindRadii[];
 }
 
@@ -131,15 +133,17 @@ interface IQuadrantPosition {
   lat: number;
 }
 
-interface IQuadrantDistance {
+// interface IQuadrantDistance {
+//   distanceKM: number;
+//   distanceMI: number;
+//   distanceNM: number;
+// }
+
+interface Quadrant {
+  loc: IQuadrantPosition;
   distanceKM: number;
   distanceMI: number;
   distanceNM: number;
-}
-
-interface Quadrant {
-  distance: IQuadrantDistance;
-  loc: IQuadrantPosition;
 }
 
 interface IWindRadii {
@@ -156,7 +160,8 @@ interface ITrack {
   loc: ILoc;
   details: IDetails;
 }
-interface IForecast {
+
+export interface IForecast {
   timestamp: number;
   dateTimeISO: string;
   location: ILocation;
@@ -168,6 +173,7 @@ interface IErrorCone {
   Type: string;
   coordinates: number[];
 }
+
 interface IBreakPointAlerts {
   /**
 TR.A = Tropical Storm Watch
@@ -178,6 +184,7 @@ HU.W = Hurricane Warning
   alertType: string;
   coords: IErrorCone;
 }
+
 interface IRelativeTo {
   lat: number;
   long: number;
