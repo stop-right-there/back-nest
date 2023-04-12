@@ -5,15 +5,17 @@ import { TyphoonDTO } from './../dto/typhoon.dto';
 export class TyphoonListResponseItem extends TyphoonDTO {
   @ApiProperty({})
   current_detail: TyphoonDetailDTO;
+
   @ApiProperty({
     isArray: true,
     type: () => TyphoonDetailDTO,
   })
   historical_details: TyphoonDetailDTO[];
+
   @ApiProperty({
     isArray: true,
   })
-  predictions: any[];
+  predictions?: any[];
 }
 // export type TyphoonListResponse = ({
 //   current_detail: TyphoonDetailDTO;
