@@ -66,7 +66,6 @@ export class WeatherController {
   async getTyphoonList(
     @Query() query: { lat: string; lon: string; startDate: string },
   ) {
-    console.log(query);
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, weatherMock);
   }
 

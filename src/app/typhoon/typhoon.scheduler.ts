@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
+import { IAresWeatherResponse, aresWeatherURL } from './type/aerisweather.type';
 
 /**
  * @description 태풍 정보를 가져오는 스케줄러
@@ -10,6 +11,42 @@ import { Cron } from '@nestjs/schedule';
  * @classdesc 태풍 정보를 가져오는 스케줄러
  * @memberof Typhoon
  *
+ * 스케줄러
+ * 매시간 0분에 GDACS와 aerisweather 사이트에서 태풍 정보를 가져옵니다.
+ *
+ * 경우의수
+ * GDACS aerisweather 모두 태풍 정보가 없을때
+ * GDACS만 태풍 정보가 있을때
+ * aerisweather만 태풍 정보가 있을때
+ * GDACS aerisweather 모두 태풍 정보가 있을때
+ *
+ * ### GDACS aerisweather 모두 태풍 정보가 없을때
+ * 1.현재 발표된 태풍이 없으므로 이벤트를 실행하지않습니다.
+ *
+ * ### GDACS만 태풍 정보가 있을때
+ * GDACS만 태풍정보가 있을경우 아직 arisweather에서 태풍정보를 제공하지 않은 상태입니다.
+ * 따라서 GDACS 태풍정보가 가장 최근에 업데이트된 태풍정보입니다.
+ *
+ * 1. GDACS 태풍정보를 가져옵니다.
+ * 2. 가져온 태풍정보 (gdacs_id)를 기반으로 GDACSupdated 이벤트를 실행합니다.
+ * - 이벤트
+ * - 1. DB에 태풍이 있나 조회합니다.
+ * - 2. 조회결과가 없다면 태풍을 생성하여 저장합니다.
+ * - 3. 조회결과가 있다면 태풍을 업데이트합니다.
+ *    - GDACS에서는 태풍정보를 일부만 제공하므로,
+ *      주변날씨를 저장하여 예측하는 용도로 사용합니다.
+ *
+ *
+ * ### aerisweather만 태풍 정보가 있을때
+ * aerisweather만 태풍정보가 있을경우 아직 GDACS에서 태풍정보를 제공하지 않은 상태입니다.
+ * 따라서 aerisweather 태풍정보가 가장 최근에 업데이트된 태풍정보입니다.
+ *
+ * 1. aerisweather 태풍정보를 가져옵니다.
+ * 2. 가져온 태풍정보 (id)를 기반으로 aerisweatherupdated 이벤트를 실행합니다.
+ * 3. 받은 태풍 정보를 바탕으로 DB에 태풍이 있나 조회합니다.
+ * 4. 조회결과가 없다면 태풍을 생성하여 저장합니다.
+ * 5. 조회결과가 있다면 태풍을 업데이트합니다.
+ *   - aerisweather에서는 태풍정보를 디테일하게 제공하므로 더 자세한 정보를 저장하기위해 있는 정보들을 업데이트 합니다.
  */
 @Injectable()
 export class TyphoonScheduler {
@@ -23,11 +60,10 @@ export class TyphoonScheduler {
    * 매시간 0분에 GDACS 사이트에서 태풍 정보를 가져옵니다.
    * 만약, 현재~36시간 이내에 태풍이 발생했다면, 태풍 정보를 가져옵니다.
    * 그리고 가져온 태풍들을 기반으로 이벤트를 실행시킵니다.
-   * observeTyphoon은 GDACS 사이트에 업데이트된 태풍을 감시만 합니다.
-   * 새로운 스케줄이 필요할경우 새로운 함수가 필요합니다.
+   * observeTyphoon은 GDACS 사이트에 업데이트된 태풍을 감시합니다.
    */
   @Cron('0 0 * * * *')
-  async observeTyphoon() {
+  async observeGDACSTyphoon() {
     this.logger.log('태풍 불러오기');
 
     // gdacs.org 에서 태풍 정보를 가져옵니다.
@@ -42,40 +78,36 @@ export class TyphoonScheduler {
     const todayGMT = new Date();
     const todayTyphoonList = gdacsTyphoonList.filter((typhoon) => {
       const { date } = typhoon;
-
       return (
         // 태풍이 현재보다 이전이고 36시간 지나지 않았을때
         todayGMT.getTime() - date.getTime() < 36 * 60 * 60 * 1000
       );
     });
-
-    /**
-    *   추후 조건을 수정해야합니다.
-    * DB 정보와 비교하여 업데이트되었을 경우에만 이벤트를 발생시켜야 합니다.
-    * 비교는 todayTyphoonList 요소들의 date값과 DB에 저장된 가장 최근의 정보의 date와 비교합니다.
-    * 현재는 DB가 구축되지 않았으므로 모든 태풍이 업데이트 되었다고 가정합니다.
-
-    * 조건을 추가해야합니다.
-    * DB에 이미 태풍이 저장되어있는지 확인합니다.
-    * 만약 있다면 태풍 update 이벤트를 실행시킵니다.
-    * 만약 없다면 태풍 create 이벤트를 실행시킵니다.
-    * 코드는 DB가 구축되면 추가예정입니다.
-    */
-
     if (todayTyphoonList.length > 0) {
       this.logger.log('GDACS 태풍정보 업데이트 되었음');
-
       todayTyphoonList.map((typhoon) => {
-        this.eventEmitter.emit('typhoon.updated', typhoon);
+        this.eventEmitter.emit('typhoon.GDACS.updated', typhoon);
       });
     }
   }
+
   /**
-   * 개발용 함수입니다.
    * 태풍 정보를 가져오는 스케줄러입니다.
    * aerisweather 사이트에서 태풍 정보를 가져옵니다.
-   *
-   *
    */
-  async observeTyphoon2() {}
+  @Cron('0 0 * * * *')
+  async observeAresWeatherTyphoon() {
+    const aerisData = await await this.httpService.axiosRef.get(
+      aresWeatherURL({
+        client_id: process.env.AERIS_CLIENT_ID,
+        client_secret: process.env.AERIS_CLIENT_SECRET,
+      }),
+    );
+    const res = aerisData.data as IAresWeatherResponse;
+
+    const { response } = res;
+    response.map((typhoon) => {
+      this.eventEmitter.emit('typhoon.aerisweather.updated', typhoon);
+    });
+  }
 }

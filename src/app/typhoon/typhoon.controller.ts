@@ -88,16 +88,28 @@ export class TyphoonController {
     example: '7',
   })
   @Get('/')
-  async getTyphoonList(@Query() query: TyphoonQuery) {
+  async getTyphoonList(
+    @Query() query: TyphoonQuery,
+  ): Promise<BaseApiResponse<TyphoonListResponseItem[]>> {
     const { startDate, endDate, period } = query;
-    console.log(query);
     const typhoonList = await this.typhoonService.getTyphoonList({
       start_date: startDate && new Date(startDate),
       end_date: endDate && new Date(endDate),
       period: period ? Number(period) : 7,
     });
+    const result = typhoonList.map((typhoon) => {
+      if (typhoon.end_date)
+        return {
+          ...typhoon,
+          current_detail: undefined,
+        };
+      return {
+        ...typhoon,
+        current_detail: typhoon.historical_details[0] || undefined,
+      };
+    });
 
-    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonList);
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, result);
   }
 
   @ApiOperation({
@@ -127,13 +139,14 @@ export class TyphoonController {
   async getTyphoonDetail(
     @Param() { typhoon_id }: { typhoon_id: string },
   ): Promise<BaseApiResponse<TyphoonDetailResponse>> {
-    const typhoon = await this.typhoonService.getTyphoonDetail(
-      Number(typhoon_id),
-    );
+    const typhoon = await this.typhoonService.getTyphoonDetail(typhoon_id);
     if (typhoon.end_date)
       return new BaseApiResponse(baseApiResponeStatus.SUCCESS, { ...typhoon });
 
-    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoon);
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, {
+      ...typhoon,
+      current_detail: typhoon.historical_details[0] || undefined,
+    });
   }
   @ApiOperation({
     summary: '태풍 예측 API ',
@@ -158,7 +171,7 @@ export class TyphoonController {
   @Get('/:typhoon_id/predict/test')
   async predictTest(@Param() { typhoon_id }: { typhoon_id: string }) {
     const typhoonPrediction = await this.typhoonService.predictTyphoonTest(
-      Number(typhoon_id),
+      typhoon_id,
     );
 
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
