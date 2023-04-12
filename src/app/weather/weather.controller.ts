@@ -75,6 +75,14 @@ export class WeatherController {
     const cityData = await this.weatherService.getCity(lat, lon);
     return cityData;
   }
+
+  @Get('cities')
+  async getCitiesByOverpass(@Query('coords') coords: string) {
+    console.log('start');
+    const c = coords.split(',').map(parseFloat);
+    const cities = await this.weatherService.getCitiesByOverpass(c);
+    return cities;
+  }
   /*
 날씨 데이터 가져오는 흐름도 입니다
 
