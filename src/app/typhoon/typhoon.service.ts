@@ -5,7 +5,7 @@ import { PrismaService } from '@src/prisma/prisma.service';
 export class TyphoonService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getTyphoonDetail(typhoon_id: number) {
+  async getTyphoonDetail(typhoon_id: string) {
     return this.prisma.typhoon.findUnique({
       where: {
         typhoon_id,
@@ -29,7 +29,6 @@ export class TyphoonService {
     end_date?: Date;
     period?: number;
   }) {
-    console.log(start_date, end_date, period);
     if (start_date && end_date) {
       return this.prisma.typhoon.findMany({
         where: {
@@ -77,7 +76,6 @@ export class TyphoonService {
     }
 
     if (end_date && period) {
-      console.log(new Date(end_date.getTime() - period * 24 * 60 * 60 * 1000));
       return this.prisma.typhoon.findMany({
         where: {
           historical_details: {
@@ -114,7 +112,7 @@ export class TyphoonService {
     });
   }
 
-  async predictTyphoonTest(typhoon_id: number) {
+  async predictTyphoonTest(typhoon_id: string) {
     return this.prisma.typhoon.findFirst({
       where: {
         typhoon_id,

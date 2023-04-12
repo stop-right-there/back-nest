@@ -62,6 +62,19 @@ export type MaxStormCat =
   | 'H5'
   | 'TY'
   | 'STY';
+
+export type MaxStormCatValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export const Grade: Record<MaxStormCat, MaxStormCatValue> = {
+  TD: 0,
+  TS: 1,
+  H1: 2,
+  H2: 3,
+  H3: 4,
+  H4: 5,
+  H5: 6,
+  TY: 7,
+  STY: 8,
+};
 export interface IWindSpeed {
   maxKTS: number;
   maxKPH: number;
