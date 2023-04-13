@@ -17,11 +17,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Cache } from 'cache-manager';
-import { BaseApiResponse } from '../../common/response/BaseApiResponse';
+import { WeatherQuery } from './interfaces/weatherQuery.interface';
 import { weatherMock } from './mock/weather.mock';
 import { WeatherService } from './provider/weather.service';
 import { WeatherResponse } from './res/weather.res';
-import { WeatherQuery } from './type/weatherQuery.type';
 
 @Controller('/weathers')
 @ApiTags('WEATHER')
@@ -33,10 +32,8 @@ export class WeatherController {
   ) {}
 
   @ApiOperation({
-    summary: '날씨 조회 API * 현재 목업 데이터를 응답합니다.',
+    summary: '날씨 조회 API',
     description: `
-      * 현재 목업 데이터를 응답합니다.
-
       날씨 조회 api 입니다.
       현재 날씨 및 일기예보를 응답합니다. 
       query :
@@ -46,8 +43,10 @@ export class WeatherController {
         end_date ?: yyyy-mm-dd  (과거 날씨를 조회할때 종료날짜)
         period: 기간 (n일 뒤 혹은 n일 전까지)
         city ?: 도시명 (도시 영문명으로 요청시 현재 도시의 날씨를 응답합니다.) 
-        forecast_days? : 예보일 (1, 3 ,7)
+        forecast_days? : 예보일 (1, 3 ,7) 
         /* 위도 경도 도시명을 동시에 보낼시 위도 경도 값을 사용하여 날씨를 응답합니다. */
+        /* forecast_days 쿼리를 사용하려면 유일하게 사용해야합니다. 
+        start_date || end_date || period가 있으면 에러를 리턴합니다 */
     `,
   })
   @ApiQuery({ name: 'lat', type: 'number', required: false })
@@ -60,46 +59,32 @@ export class WeatherController {
   @SwaggerResponse(
     200,
     WeatherResponse,
-    false,
+    true,
     '성공',
     baseApiResponeStatus.SUCCESS,
     weatherMock,
   )
-  @Get(':lat/:lon') //도시,국가 받아오기
-  async getCity(@Param('lat') lat: number, @Param('lon') lon: number) {
-    const cityData = await this.weatherService.getCity(lat, lon);
-    return cityData;
-  }
-
-  @Get('cities')
-  async getCitiesByOverpass(@Query('coords') coords: string) {
-    console.log('start');
-    const c = coords.split(',').map(parseFloat);
-    const cities = await this.weatherService.getCitiesByOverpass(c);
-    return cities;
-  }
-  /*
-날씨 데이터 가져오는 흐름도 입니다
-
-1. 위도 경도는 param으로, 시작날짜 / 종료 날짜 / 기간은 query로 받아옵니다.
-2. 시작날짜와 기간만 있는 경우 종료 날짜를 정해줍니다
-3. 종료날짜와 기간만 있는 경우 시작날짜를 정해줍니다.
-4. getDateRange를 이용해 필요한 
-
-
-4. 반복문을 실행시킬 date, end_date를 설정해줍니다.
-5. 반복문을 실행하면서 (해당 date와 city 정보가 담겨있는)'yyyy-mm-dd-city' 형식의 key로 저장되어 있는 데이터가 있는지 확인합니다.
-
-**데이터가 있다면
--> cacheManager로 불러오기
-
-**데이터가 없다면
--> weatherService.getWeatherData 함수 실행
--> open-meteo api를 이용해서 해당 날짜와 필요한 데이터들을 가져와 저장해줍니다.
--> 이때 ttl은 3600초(1시간)으로 설정해두었습니다.
-*/
   @Get('') // 날씨 데이터 가져오기
   async getWeather(@Query() query: WeatherQuery) {
+    /*
+      날씨 데이터 가져오는 흐름도 입니다
+
+      1. 쿼리로 city(도시 이름)가 받아지는지 확인하고, 아니라면 getCity() 함수로 받아옵니다.
+      2. forecast_days 쿼리를 사용하려면 유일하게 사용해야합니다.  start_date || end_date || period기 있으면 에러를 리턴합니다.
+      3. 시작날짜와 기간만 있는 경우 종료 날짜를 정해줍니다. (period 기간이 설정되어있지 않다면 7일입니다)
+      4. 종료날짜와 기간만 있는 경우 시작날짜를 정해줍니다. (period 기간이 설정되어있지 않다면 7일입니다)
+      5. forecast_days 쿼리가 있다면 현재 날짜부터 해당되는 날짜 만큼 기간을 정해줍니다.
+      6. getDateRange()를 이용해 순회할 날짜 배열을 리턴합니다.
+      7. 날짜마다 (해당 date와 city 정보가 담겨있는)'yyyy-mm-dd-city' 형식의 key로 저장되어 있는 데이터가 있는지 확인합니다.
+
+      **데이터가 있다면
+      -> cacheManager로 불러오기
+
+      **데이터가 없다면
+      -> weatherService.getWeatherData 함수 실행
+      -> open-meteo api를 이용해서 해당 날짜와 필요한 데이터들을 가져와 저장해줍니다.
+      -> 이때 ttl은 3600초(1시간)으로 설정해두었습니다.
+    */
     const { lat, lon, start_date, end_date, period, city, forecast_days } =
       query;
     let city_name = city;
@@ -130,22 +115,18 @@ export class WeatherController {
       ? new Date(new Date(start_date).getTime() + period * 24 * 60 * 60 * 1000)
       : new Date(new Date(start_date).getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    console.log(startDate, endDate);
-
     const dateRange = await this.weatherService.getDateRange(
       startDate,
       endDate,
     );
-    const weatherList = [];
     //return dateRange;
-    await Promise.all(
+    const weatherList = await Promise.all(
       dateRange.map(async (date) => {
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, '0');
         const dd = String(date.getDate()).padStart(2, '0');
         const dateString = `${yyyy}-${mm}-${dd}`;
         const key = `${yyyy}-${mm}-${dd}-${city_name}`;
-        console.log(key);
 
         const savedWeather = await this.cacheManager.get<string>(key);
         if (savedWeather) {
@@ -160,24 +141,23 @@ export class WeatherController {
             city_name,
           });
           await this.cacheManager.set(key, weatherData, 3600);
-          weatherList.push(weatherData);
+          return weatherData;
         }
       }),
     );
-    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, weatherList);
+    return weatherList;
   }
 
-  /*
-  //cache test:in-memory
-  @Get('/cache')
-  async getCache(): Promise<string> {
-    const savedTime = await this.cacheManager.get<number>('time');
-    if (savedTime) {
-      return 'saved time : ' + savedTime;
-    }
-    const now = new Date().getTime();
-    await this.cacheManager.set('time', now);
-    return 'save new time : ' + now;
+  @Get(':lat/:lon') //도시,국가 받아오기
+  async getCity(@Param('lat') lat: number, @Param('lon') lon: number) {
+    const cityData = await this.weatherService.getCity(lat, lon);
+    return cityData;
   }
-  */
+
+  @Get('cities')
+  async getCitiesByOverpass(@Query('coords') coords: string) {
+    const c = coords.split(',').map(parseFloat);
+    const cities = await this.weatherService.getCitiesByOverpass(c);
+    return cities;
+  }
 }

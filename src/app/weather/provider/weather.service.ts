@@ -1,7 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
+import { IBuildUrl, OpenMeteoData } from '../interfaces/openMeteo.interface';
 import { OpenWeatherData } from '../interfaces/openWeather.interface';
 import { weatherMock } from '../mock/weather.mock';
+import { urlBuilder } from '../util/urlbuilder';
 
 @Injectable()
 export class WeatherService {
@@ -29,24 +31,14 @@ export class WeatherService {
     lon,
     dateString,
     city_name,
-  }: {
-    lat: number;
-    lon: number;
-    dateString: string;
+  }: IBuildUrl & {
     city_name: string;
-  }) {
-    console.log(lat, lon, dateString);
-
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&start_date=${dateString}&end_date=${dateString}&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,rain,showers,weathercode,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high`;
+  }): Promise<OpenMeteoData> {
+    const url = urlBuilder({ lat, lon, dateString });
     try {
       const response = await this.httpService.axiosRef.get(url);
       const data = response.data;
-      data.city = city_name;
-      /*
-      const key = date + '-' + city_name;
-      data.key = key;
-      */
-      return data;
+      return { ...data, city: city_name, date: dateString };
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
