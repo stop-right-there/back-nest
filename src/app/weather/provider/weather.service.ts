@@ -23,23 +23,29 @@ export class WeatherService {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
+
   async getWeatherData({
     lat,
     lon,
-    date,
+    dateString,
+    city_name,
   }: {
     lat: number;
     lon: number;
-    date: Date;
+    dateString: string;
+    city_name: string;
   }) {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&start_date=${date}&end_date=${date}&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,rain,showers,weathercode,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high`;
+    console.log(lat, lon, dateString);
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&start_date=${dateString}&end_date=${dateString}&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,rain,showers,weathercode,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high`;
     try {
       const response = await this.httpService.axiosRef.get(url);
       const data = response.data;
-      const cityData = await this.getCity(lat, lon); //도시 받아오기
-      const city = cityData.city;
-      const key = date + '-' + city;
+      data.city = city_name;
+      /*
+      const key = date + '-' + city_name;
       data.key = key;
+      */
       return data;
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
@@ -86,6 +92,16 @@ export class WeatherService {
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
+  }
+
+  async getDateRange(start_date: Date, end_date: Date) {
+    const dateRange = [];
+    const currentDate = new Date(start_date);
+    while (currentDate <= end_date) {
+      dateRange.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dateRange;
   }
 
   async getPastOpenWeatherMap(

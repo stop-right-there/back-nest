@@ -1,5 +1,9 @@
 export interface WeatherQuery {
-  startDate: string;
+  lat: number;
+  lon: number;
+  start_date: string;
+  end_date: string;
   period: number;
-  endDate: string;
+  city: string;
+  forecast_days: number;
 }
