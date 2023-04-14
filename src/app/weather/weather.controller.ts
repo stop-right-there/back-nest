@@ -16,6 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Cache } from 'cache-manager';
+
 import { GetCityQuery } from './interfaces/getCityQuery.interface';
 import { WeatherQuery } from './interfaces/weatherQuery.interface';
 import { citiesMock } from './mock/cities.mock';

@@ -4,6 +4,7 @@ import { IcityRes } from '../interfaces/getCityQuery.interface';
 import { IBuildUrl, OpenMeteoData } from '../interfaces/openMeteo.interface';
 import { OpenWeatherData } from '../interfaces/openWeather.interface';
 import { weatherMock } from '../mock/weather.mock';
+import { IOpenWeatherMapResponse, IWeatherGetDTO } from '../type/weather.type';
 import { urlBuilder } from '../util/urlbuilder';
 
 @Injectable()
@@ -21,7 +22,6 @@ export class WeatherService {
         city: response.data[0].name,
         country: response.data[0].country,
       };
-      console.log(data);
       return data;
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
@@ -45,6 +45,7 @@ export class WeatherService {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }
+
   //over-pass api
   async getCitiesByOverpass(coords: number[]): Promise<string[]> {
     const [south, west, north, east] = coords;
@@ -72,7 +73,6 @@ export class WeatherService {
     }
     return dateRange;
   }
-
   //open-weather map
 
   async getCurrentOpenWeatherMap(
@@ -119,5 +119,71 @@ export class WeatherService {
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
+  }
+
+  async getTyphoonWeatherData({ lat, long, date }: IWeatherGetDTO) {
+    const year = date.getUTCFullYear();
+    const month = (date.getUTCMonth() + 1).toString();
+    const day = date.getUTCDate().toString();
+    const hour = date.getUTCHours().toString();
+    const { data } = await this.httpService.axiosRef.get(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(
+        4,
+      )}&longitude=${long.toFixed(4)}&start_date=${year}-${
+        month.length === 1 ? '0' + month : month
+      }-${day.length === 1 ? '0' + day : day}&end_date=${year}-${
+        month.length === 1 ? '0' + month : month
+      }-${
+        day.length === 1 ? '0' + day : day
+      }&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,surface_pressure,cloudcover,cloudcover_low,cloudcover_mid,cloudcover_high,windspeed_10m,windspeed_80m,windspeed_120m,windspeed_180m,winddirection_10m,winddirection_120m,windgusts_10m,direct_normal_irradiance`,
+    );
+
+    const { hourly } = data;
+    // hourly 정보에서 필요한 정보만 추출합니다.
+    const {
+      temperature_2m,
+      relativehumidity_2m,
+      pressure_msl,
+      cloudcover,
+      cloudcover_low,
+      cloudcover_mid,
+      direct_normal_irradiance,
+      apparent_temperature,
+      windspeed_10m,
+      windspeed_120m,
+      winddirection_10m,
+      winddirection_120m,
+      windgusts_10m,
+    } = hourly;
+    return {
+      temperature_2m: temperature_2m[Number(hour)] as number,
+      relativehumidity_2m: relativehumidity_2m[Number(hour)] as number,
+      apparent_temperature: apparent_temperature[Number(hour)] as number,
+      pressure_msl: pressure_msl[Number(hour)] as number,
+      cloudcover: cloudcover[Number(hour)] as number,
+      cloudcover_low: cloudcover_low[Number(hour)] as number,
+      cloudcover_mid: cloudcover_mid[Number(hour)] as number,
+      direct_normal_irradiance: direct_normal_irradiance[
+        Number(hour)
+      ] as number,
+      windspeed_10m: windspeed_10m[Number(hour)] as number,
+      windspeed_100m: windspeed_120m[Number(hour)] as number,
+      winddirection_10m: winddirection_10m[Number(hour)] as number,
+      winddirection_100m: winddirection_120m[Number(hour)] as number,
+      windgusts_10m: windgusts_10m[Number(hour)] as number,
+    };
+  }
+
+  async getTyphoonWeatherOpenWeatherMap({ date, long, lat }: IWeatherGetDTO) {
+    const { data: openWeatherMapRes } = await this.httpService.axiosRef.get(
+      `https://api.openweathermap.org/data/3.0/onecall/timemachine?dt=${
+        date.getTime() / 1000
+      }&lat=${lat}&lon=${long}&appid=${
+        process.env.OPEN_WEATHER_API_KEY
+      }&type=hour`,
+    );
+    const { data: weatherData }: { data: IOpenWeatherMapResponse[] } =
+      openWeatherMapRes;
+    return weatherData[0];
   }
 }

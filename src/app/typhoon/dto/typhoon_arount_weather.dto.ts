@@ -1,3 +1,4 @@
+import { IsULID } from '@common/decorator/IsULID';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsNumber } from 'class-validator';
 
@@ -5,10 +6,10 @@ export class TyphoonAroundWeatherDTO {
   @ApiProperty({
     name: 'typhoon_id',
     description: '태풍 id',
-    type: 'number',
+    type: 'string',
   })
-  @IsNumber()
-  typhoon_id: number;
+  @IsULID()
+  typhoon_id: string;
 
   @ApiProperty({
     name: 'observation_date',

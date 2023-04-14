@@ -4,15 +4,13 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
-    super({ log: [{ emit: 'stdout', level: 'query' }], errorFormat: 'pretty' });
+    super({ log: [{ emit: 'stdout', level: 'warn' }], errorFormat: 'pretty' });
   }
 
   async onModuleInit() {
     await this.$connect();
 
     this.$use(async (params, next) => {
-      console.log(params);
-
       const result = await next(params);
       return result;
     });

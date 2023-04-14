@@ -1,14 +1,33 @@
+import { IsULID } from '@common/decorator/IsULID';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNumber, IsString } from 'class-validator';
+import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class TyphoonDTO {
   @ApiProperty({
     name: 'typhoon_id',
     description: '태풍 id',
+    type: 'stirng',
+  })
+  @IsULID()
+  typhoon_id: string;
+
+  @ApiProperty({
+    name: 'gdacs_id',
+    description: '태풍 GDACS id',
     type: 'number',
   })
   @IsNumber()
-  typhoon_id: number;
+  @IsOptional()
+  gdacs_id?: number;
+
+  @ApiProperty({
+    name: 'aerisweather_id',
+    description: '태풍 aerisweather id',
+    type: 'string',
+  })
+  @IsString()
+  @IsOptional()
+  aerisweather_id?: string;
 
   @ApiProperty({
     name: 'name',
