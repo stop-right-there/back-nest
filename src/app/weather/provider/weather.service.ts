@@ -3,8 +3,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { IcityRes } from '../interfaces/getCityQuery.interface';
 import { IBuildUrl, OpenMeteoData } from '../interfaces/openMeteo.interface';
 import { OpenWeatherData } from '../interfaces/openWeather.interface';
+import {
+  IOpenWeatherMapResponse,
+  IWeatherGetDTO,
+} from '../interfaces/weather.interface';
 import { weatherMock } from '../mock/weather.mock';
-import { IOpenWeatherMapResponse, IWeatherGetDTO } from '../type/weather.type';
+
 import { urlBuilder } from '../util/urlbuilder';
 
 @Injectable()
