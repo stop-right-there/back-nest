@@ -1,6 +1,5 @@
 import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
-
 import {
   BadRequestException,
   CACHE_MANAGER,
@@ -19,6 +18,7 @@ import { Cache } from 'cache-manager';
 
 import { GetCityQuery } from './interfaces/getCityQuery.interface';
 import { WeatherQuery } from './interfaces/weatherQuery.interface';
+
 import { citiesMock } from './mock/cities.mock';
 import { cityMock } from './mock/city.mock';
 import { weatherMock } from './mock/weather.mock';
@@ -47,7 +47,7 @@ export class WeatherController {
         end_date ?: yyyy-mm-dd  (과거 날씨를 조회할때 종료날짜)
         period: 기간 (n일 뒤 혹은 n일 전까지)
         city ?: 도시명 (도시 영문명으로 요청시 현재 도시의 날씨를 응답합니다.) 
-        forecast_days? : 예보일 (1, 3 ,7) 
+        forecast_days? : 예보일 단위 (최대 7일) 
         /* 위도 경도 도시명을 동시에 보낼시 위도 경도 값을 사용하여 날씨를 응답합니다. */
         /* forecast_days 쿼리를 사용하려면 유일하게 사용해야합니다. 
         start_date || end_date || period가 있으면 에러를 리턴합니다 */
@@ -203,8 +203,7 @@ export class WeatherController {
       도시 배열을 반환합니다.
     `,
   })
-  @ApiQuery({ name: 'lat', type: 'number', required: true })
-  @ApiQuery({ name: 'lon', type: 'number', required: true })
+  @ApiQuery({ name: 'coords', type: 'string', required: true })
   @SwaggerResponse(
     200,
     CityResponse,
