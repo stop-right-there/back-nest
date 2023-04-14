@@ -8,7 +8,7 @@ export class WeatherResponse {
   city: string;
 
   @ApiProperty({
-    name: 'city',
+    name: 'city_kr',
     description: '도시이름',
     type: 'string',
   })
@@ -62,7 +62,18 @@ export class WeatherResponse {
 
   @ApiProperty({
     name: 'hourly_units',
-    description: '각 값의 단위 ',
+    description: `각 값의 단위: 
+    time: string;
+    temperature_2m: string;
+    relativehumidity_2m: string;
+    apparent_temperature: string;
+    rain: string;
+    weathercode: string;
+    cloudcover: string;
+    cloudcover_low: string;
+    cloudcover_mid: string;
+    cloudcover_high: string;
+    `,
     type: 'object',
   })
   hourly_units: {
@@ -70,9 +81,7 @@ export class WeatherResponse {
     temperature_2m: string;
     relativehumidity_2m: string;
     apparent_temperature: string;
-    precipitation_probability: string;
     rain: string;
-    showers: string;
     weathercode: string;
     cloudcover: string;
     cloudcover_low: string;
@@ -114,29 +123,12 @@ export class WeatherResponse {
   apparent_temperature: number[];
 
   @ApiProperty({
-    name: 'precipitation_probability',
-    description:
-      '이전 시간의 0.1mm 이상의 강수 확률. 확률은 0.25°(~27km) 해상도의 앙상블 날씨 모델을 기반으로 합니다. 미래의 기상 조건을 더 잘 나타내기 위해 30개의 서로 다른 시뮬레이션이 계산됩니다.',
-    isArray: true,
-    type: 'number',
-  })
-  precipitation_probability: number[];
-
-  @ApiProperty({
     name: 'rain',
     description: '밀리미터 단위로 이전 시간의 대규모 기상 시스템에서 비',
     isArray: true,
     type: 'number',
   })
   rain: number[];
-
-  @ApiProperty({
-    name: 'showers',
-    description: '	이전 시간의 대류 강수로 인한 소나기(밀리미터)',
-    isArray: true,
-    type: 'number',
-  })
-  showers: number[];
 
   @ApiProperty({
     name: 'weathercode',

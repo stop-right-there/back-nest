@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron } from '@nestjs/schedule';
-import { IAresWeatherResponse, aresWeatherURL } from './type/aerisweather.type';
+import { aresWeatherURL, IAresWeatherResponse } from './type/aerisweather.type';
 
 /**
  * @description 태풍 정보를 가져오는 스케줄러
