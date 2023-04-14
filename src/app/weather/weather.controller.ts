@@ -18,6 +18,7 @@ import {
 import { Cache } from 'cache-manager';
 import { GetCityQuery } from './interfaces/getCityQuery.interface';
 import { WeatherQuery } from './interfaces/weatherQuery.interface';
+import { citiesMock } from './mock/cities.mock';
 import { cityMock } from './mock/city.mock';
 import { weatherMock } from './mock/weather.mock';
 import { WeatherService } from './provider/weather.service';
@@ -66,6 +67,13 @@ export class WeatherController {
     baseApiResponeStatus.SUCCESS,
     weatherMock,
   )
+  @SwaggerResponse(
+    400,
+    null,
+    false,
+    '실패',
+    baseApiResponeStatus.WEATHER_QUERY_FAIL,
+  )
   @Get('') // 날씨 데이터 가져오기
   async getWeather(@Query() query: WeatherQuery) {
     /*
@@ -97,7 +105,7 @@ export class WeatherController {
 
     if (forecast_days) {
       if (start_date || end_date || period)
-        return new BadRequestException(
+        throw new BadRequestException(
           'need query start_date / end_date / period  or only forecast_days',
         );
     }
@@ -165,23 +173,56 @@ export class WeatherController {
   @SwaggerResponse(
     200,
     CityResponse,
-    true,
+    false,
     '성공',
     baseApiResponeStatus.SUCCESS,
     cityMock,
+  )
+  @SwaggerResponse(
+    400,
+    null,
+    false,
+    '실패',
+    baseApiResponeStatus.CITY_QUERY_FAIL,
   )
   @Get('city') //도시,국가 받아오기
   async getCity(@Query() query: GetCityQuery) {
     const { lat, lon } = query;
     if (!lat || !lon)
-      return new BadRequestException('lat, lon이 모두 있어야 합니다');
+      throw new BadRequestException('lat, lon queries are all needed');
     const cityData = await this.weatherService.getCity(lat, lon);
     return cityData;
   }
 
+  @ApiOperation({
+    summary: 'Overpass-api로 두 좌표 내 도시리스트 조회 API',
+    description: `
+      두 좌표로 이루어진 사각형 안의 도시들을 조회하는 api 입니다.  
+      coords: 좌표 문자열은 남,서,북,동 값으로 이루어집니다.(최소 위도, 최소 경도, 최대 위도, 최대 경도)
+      도시 배열을 반환합니다.
+    `,
+  })
+  @ApiQuery({ name: 'lat', type: 'number', required: true })
+  @ApiQuery({ name: 'lon', type: 'number', required: true })
+  @SwaggerResponse(
+    200,
+    CityResponse,
+    true,
+    '성공',
+    baseApiResponeStatus.SUCCESS,
+    citiesMock,
+  )
+  @SwaggerResponse(
+    400,
+    null,
+    false,
+    '실패',
+    baseApiResponeStatus.CITY_QUERY_FAIL,
+  )
   @Get('cities')
   async getCitiesByOverpass(@Query('coords') coords: string) {
     const c = coords.split(',').map(parseFloat);
+    if (c.length != 4) throw new BadRequestException('need 4 coords');
     const cities = await this.weatherService.getCitiesByOverpass(c);
     return cities;
   }

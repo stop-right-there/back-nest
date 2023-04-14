@@ -46,10 +46,10 @@ export class WeatherService {
     }
   }
   //over-pass api
-  async getCitiesByOverpass(coords: number[]): Promise<any> {
-    const [east, south, west, north] = coords;
+  async getCitiesByOverpass(coords: number[]): Promise<string[]> {
+    const [south, west, north, east] = coords;
     if (coords.length != 4) return []; //잘못된 coords 조건일때 빈 배열 반환
-    const url = `https://overpass-api.de/api/interpreter?data=[out:json];node[place=city](${east},${south},${west},${north});out%20meta;`;
+    const url = `https://overpass-api.de/api/interpreter?data=[out:json];node[place=city](${south},${west},${north},${east});out%20meta;`;
     console.log(url);
 
     try {
