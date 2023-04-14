@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
+import { IcityRes } from '../interfaces/getCityQuery.interface';
 import { IBuildUrl, OpenMeteoData } from '../interfaces/openMeteo.interface';
 import { OpenWeatherData } from '../interfaces/openWeather.interface';
 import { weatherMock } from '../mock/weather.mock';
@@ -12,7 +13,7 @@ export class WeatherService {
   private readonly logger = new Logger(WeatherService.name);
   constructor(private httpService: HttpService) {}
 
-  async getCity(lat: number, lon: number) {
+  async getCity(lat: number, lon: number): Promise<IcityRes> {
     const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${this.weatherAPIKey}`;
     try {
       const response = await this.httpService.axiosRef.get(url);
@@ -20,6 +21,7 @@ export class WeatherService {
         city: response.data[0].name,
         country: response.data[0].country,
       };
+      console.log(data);
       return data;
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
@@ -61,6 +63,16 @@ export class WeatherService {
     }
   }
 
+  async getDateRange(start_date: Date, end_date: Date) {
+    const dateRange = [];
+    const currentDate = new Date(start_date);
+    while (currentDate <= end_date) {
+      dateRange.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dateRange;
+  }
+
   //open-weather map
 
   async getCurrentOpenWeatherMap(
@@ -84,16 +96,6 @@ export class WeatherService {
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
-  }
-
-  async getDateRange(start_date: Date, end_date: Date) {
-    const dateRange = [];
-    const currentDate = new Date(start_date);
-    while (currentDate <= end_date) {
-      dateRange.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return dateRange;
   }
 
   async getPastOpenWeatherMap(

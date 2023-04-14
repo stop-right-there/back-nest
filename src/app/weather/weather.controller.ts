@@ -7,7 +7,6 @@ import {
   Controller,
   Get,
   Inject,
-  Param,
   Query,
 } from '@nestjs/common';
 import {
@@ -17,9 +16,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Cache } from 'cache-manager';
+import { GetCityQuery } from './interfaces/getCityQuery.interface';
 import { WeatherQuery } from './interfaces/weatherQuery.interface';
+import { cityMock } from './mock/city.mock';
 import { weatherMock } from './mock/weather.mock';
 import { WeatherService } from './provider/weather.service';
+import { CityResponse } from './res/city.res';
 import { WeatherResponse } from './res/weather.res';
 
 @Controller('/weathers')
@@ -148,8 +150,31 @@ export class WeatherController {
     return weatherList;
   }
 
-  @Get(':lat/:lon') //도시,국가 받아오기
-  async getCity(@Param('lat') lat: number, @Param('lon') lon: number) {
+  @ApiOperation({
+    summary: '도시, 국가 조회 API',
+    description: `
+      좌표로 도시, 국가 조회 api 입니다.
+      도시와 국가 코드를 반환합니다
+      query :
+        lat ?: 위도 
+        lon ?: 경도 
+    `,
+  })
+  @ApiQuery({ name: 'lat', type: 'number', required: true })
+  @ApiQuery({ name: 'lon', type: 'number', required: true })
+  @SwaggerResponse(
+    200,
+    CityResponse,
+    true,
+    '성공',
+    baseApiResponeStatus.SUCCESS,
+    cityMock,
+  )
+  @Get('city') //도시,국가 받아오기
+  async getCity(@Query() query: GetCityQuery) {
+    const { lat, lon } = query;
+    if (!lat || !lon)
+      return new BadRequestException('lat, lon이 모두 있어야 합니다');
     const cityData = await this.weatherService.getCity(lat, lon);
     return cityData;
   }

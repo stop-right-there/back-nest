@@ -8,7 +8,7 @@ export class WeatherResponse {
   city: string;
 
   @ApiProperty({
-    name: 'city',
+    name: 'city_kr',
     description: '도시이름',
     type: 'string',
   })
