@@ -203,8 +203,7 @@ export class WeatherController {
       도시 배열을 반환합니다.
     `,
   })
-  @ApiQuery({ name: 'lat', type: 'number', required: true })
-  @ApiQuery({ name: 'lon', type: 'number', required: true })
+  @ApiQuery({ name: 'coords', type: 'string', required: true })
   @SwaggerResponse(
     200,
     CityResponse,
