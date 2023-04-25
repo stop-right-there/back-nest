@@ -22,6 +22,14 @@ export class WeatherService {
     const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${this.weatherAPIKey}`;
     try {
       const response = await this.httpService.axiosRef.get(url);
+      if (!response.data.length) {
+        //빈배열일 경우: city, country가 아닐 경우
+        const emptyData = {
+          city: 'non-city',
+          country: 'non-country',
+        };
+        return emptyData;
+      }
       const data = {
         city: response.data[0].name,
         country: response.data[0].country,
