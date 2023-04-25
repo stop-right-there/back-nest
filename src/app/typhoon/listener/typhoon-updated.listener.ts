@@ -140,12 +140,12 @@ export class TyphoonUpdatedListener {
       };
       const around_weathers = await Promise.all(
         getNineCoordinates(central_latitude, central_longitude).map(
-          (
+          async (
             location,
             i,
-          ): Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput => {
+          ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
             const { latitude, longitude } = location;
-            const wheather = this.weatherService.getTyphoonWeatherData({
+            const wheather = await this.weatherService.getTyphoonWeatherData({
               date,
               long: longitude,
               lat: latitude,
@@ -255,12 +255,12 @@ export class TyphoonUpdatedListener {
     //구한 좌표를 기반으로 날씨정보를 가져옵니다.
     const arroundWeatherList = await Promise.all(
       getNineCoordinates(central_latitude, central_longitude).map(
-        (
+        async (
           location,
           i,
-        ): Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput => {
+        ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
           const { latitude, longitude } = location;
-          const wheather = this.weatherService.getTyphoonWeatherData({
+          const wheather = await this.weatherService.getTyphoonWeatherData({
             date,
             long: longitude,
             lat: latitude,
@@ -416,12 +416,12 @@ export class TyphoonUpdatedListener {
       };
       const around_weathers = await Promise.all(
         getNineCoordinates(central_latitude, central_longitude).map(
-          (
+          async (
             location,
             i,
-          ): Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput => {
+          ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
             const { latitude, longitude } = location;
-            const wheather = this.weatherService.getTyphoonWeatherData({
+            const wheather = await this.weatherService.getTyphoonWeatherData({
               date: observation_date,
               long: longitude,
               lat: latitude,
@@ -500,12 +500,12 @@ export class TyphoonUpdatedListener {
       );
       const around_weathers = await Promise.all(
         getNineCoordinates(central_latitude, central_longitude).map(
-          (
+          async (
             location,
             i,
-          ): Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput => {
+          ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
             const { latitude, longitude } = location;
-            const wheather = this.weatherService.getTyphoonWeatherData({
+            const wheather = await this.weatherService.getTyphoonWeatherData({
               date: observation_date,
               long: longitude,
               lat: latitude,
