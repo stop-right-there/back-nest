@@ -139,21 +139,31 @@ export class WeatherController {
         const dateString = `${yyyy}-${mm}-${dd}`;
         const key = `${yyyy}-${mm}-${dd}-${city_name}`;
 
-        const savedWeather = await this.cacheManager.get<string>(key);
-        if (savedWeather) {
-          //있다면 불러오기
-          return savedWeather;
-        } else {
-          //없다면 api콜
-          const weatherData = await this.weatherService.getWeatherData({
-            lat,
-            lon,
-            dateString,
-            city_name,
-          });
-          await this.cacheManager.set(key, weatherData, 3600);
-          return weatherData;
+        if (!(city_name === 'non-city')) {
+          const savedWeather = await this.cacheManager.get<string>(key);
+          if (savedWeather) {
+            //있다면 불러오기
+            return savedWeather;
+          } else {
+            //없다면 api콜
+            const weatherData = await this.weatherService.getWeatherData({
+              lat,
+              lon,
+              dateString,
+              city_name,
+            });
+
+            await this.cacheManager.set(key, weatherData, 3600);
+            return weatherData;
+          }
         }
+        const weatherData = await this.weatherService.getWeatherData({
+          lat,
+          lon,
+          dateString,
+          city_name,
+        });
+        return weatherData;
       }),
     );
     return weatherList;
