@@ -9,6 +9,7 @@ import { ulid } from 'ulid';
 import { TyphoonDetailDTO } from '../dto/typhoon_detail.dto';
 import { GDASCTyphoonUpdatedEvent } from '../event/typhoon-updated.envent';
 import { Grade, IAresWeatherData } from '../type/aerisweather.type';
+import { TyphoonService } from '../typhoon.service';
 import { WeatherService } from './../../weather/provider/weather.service';
 
 @Injectable()
@@ -18,6 +19,7 @@ export class TyphoonUpdatedListener {
     private readonly httpService: HttpService,
     private readonly prisma: PrismaService,
     private readonly weatherService: WeatherService,
+    private readonly typhoonService: TyphoonService,
   ) {}
 
   /**
@@ -294,6 +296,16 @@ export class TyphoonUpdatedListener {
     }
 
     // #endregion
+
+    // #region 예측데이터
+
+    //가장 최근의 2점 가져오기
+    const preprocessed_data = await this.typhoonService.getRecentTyphoonData(
+      exist.typhoon_id,
+    );
+    //예측데이터 추가
+    await this.typhoonService.predictTyphoon(preprocessed_data);
+    // #endregion
   }
 
   @OnEvent('typhoon.aerisweather.updated')
@@ -526,6 +538,12 @@ export class TyphoonUpdatedListener {
           },
         },
       });
+
+      const preprocessed_data = await this.typhoonService.getRecentTyphoonData(
+        exist.typhoon_id,
+      );
+      //예측데이터 추가
+      await this.typhoonService.predictTyphoon(preprocessed_data);
     }
     if (
       exist.historical_details.length > 0 &&
@@ -544,6 +562,7 @@ export class TyphoonUpdatedListener {
         },
         data: historical_details,
       });
+
       return;
     }
 

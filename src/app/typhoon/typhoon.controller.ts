@@ -1,7 +1,7 @@
 import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { BaseApiResponse } from '@common/response/BaseApiResponse';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
   ApiExtraModels,
   ApiOperation,
@@ -174,6 +174,15 @@ export class TyphoonController {
       typhoon_id,
     );
 
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
+
+  @Post('/predict/test')
+  async predictTest2(@Body() body: any) {
+    const recent = await this.typhoonService.getRecentTyphoonData(
+      body.typhoon_id,
+    );
+    const typhoonPrediction = await this.typhoonService.predictTyphoon(recent);
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   }
 }
