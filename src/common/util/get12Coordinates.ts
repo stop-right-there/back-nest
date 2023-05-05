@@ -32,23 +32,30 @@ function findNewCoordinates(
   return {
     latitude: convertRadiansToDegrees(lat2),
     longitude: convertRadiansToDegrees(lon2),
+    bearing,
+    distance,
   };
 }
 
 //
-export function getNineCoordinates(latitude: number, longitude: number) {
-  const distance = 1000; // 1000 km
-
+export function get12Coordinates(
+  latitude: number,
+  longitude: number,
+  distance = 1000,
+) {
   const coordinates = [
-    { latitude, longitude }, // 중심 좌표
     findNewCoordinates(latitude, longitude, 0, distance), // 위
-    findNewCoordinates(latitude, longitude, 45, distance), // 오른쪽 위
-    findNewCoordinates(latitude, longitude, 90, distance), // 오른쪽
-    findNewCoordinates(latitude, longitude, 135, distance), // 오른쪽 아래
-    findNewCoordinates(latitude, longitude, 180, distance), // 아래
-    findNewCoordinates(latitude, longitude, 225, distance), // 왼쪽 아래
-    findNewCoordinates(latitude, longitude, 270, distance), // 왼쪽
-    findNewCoordinates(latitude, longitude, 315, distance), // 왼쪽 위
+    findNewCoordinates(latitude, longitude, 30, distance), // 오른쪽 위
+    findNewCoordinates(latitude, longitude, 60, distance), // 오른쪽
+    findNewCoordinates(latitude, longitude, 90, distance), // 오른쪽 아래
+    findNewCoordinates(latitude, longitude, 120, distance), // 아래
+    findNewCoordinates(latitude, longitude, 150, distance), // 왼쪽 아래
+    findNewCoordinates(latitude, longitude, 180, distance), // 왼쪽
+    findNewCoordinates(latitude, longitude, 210, distance), // 왼쪽 위
+    findNewCoordinates(latitude, longitude, 240, distance), // 왼쪽 위
+    findNewCoordinates(latitude, longitude, 270, distance), // 왼쪽 위
+    findNewCoordinates(latitude, longitude, 300, distance), // 왼쪽 위
+    findNewCoordinates(latitude, longitude, 330, distance), // 왼쪽 위
   ];
 
   return coordinates;

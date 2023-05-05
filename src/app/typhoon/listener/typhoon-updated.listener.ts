@@ -1,4 +1,4 @@
-import { getNineCoordinates } from '@common/util/getNineCoordinates';
+import { get12Coordinates } from '@common/util/get12Coordinates';
 import { parseGDACS_XML } from '@common/util/parseGDACS_XML';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
@@ -141,19 +141,29 @@ export class TyphoonUpdatedListener {
         start_date,
       };
       const around_weathers = await Promise.all(
-        getNineCoordinates(central_latitude, central_longitude).map(
+        [
+          {
+            latitude: central_latitude,
+            longitude: central_longitude,
+            bearing: 0,
+            distance: 0,
+          },
+          ...get12Coordinates(central_latitude, central_longitude, 750),
+          ...get12Coordinates(central_latitude, central_longitude, 1500),
+        ].map(
           async (
             location,
             i,
           ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
-            const { latitude, longitude } = location;
+            const { latitude, longitude, bearing, distance } = location;
             const wheather = await this.weatherService.getTyphoonWeatherData({
               date,
               long: longitude,
               lat: latitude,
             });
             return {
-              point: i,
+              distance,
+              point: bearing / 30,
               ...wheather,
             };
           },
@@ -256,19 +266,29 @@ export class TyphoonUpdatedListener {
     //태풍의 중심좌표와 8개의 1000km (45도 각도)를 구합니다.
     //구한 좌표를 기반으로 날씨정보를 가져옵니다.
     const arroundWeatherList = await Promise.all(
-      getNineCoordinates(central_latitude, central_longitude).map(
+      [
+        {
+          latitude: central_latitude,
+          longitude: central_longitude,
+          bearing: 0,
+          distance: 0,
+        },
+        ...get12Coordinates(central_latitude, central_longitude, 750),
+        ...get12Coordinates(central_latitude, central_longitude, 1500),
+      ].map(
         async (
           location,
           i,
         ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
-          const { latitude, longitude } = location;
+          const { latitude, longitude, bearing, distance } = location;
           const wheather = await this.weatherService.getTyphoonWeatherData({
             date,
             long: longitude,
             lat: latitude,
           });
           return {
-            point: i,
+            point: bearing / 30,
+            distance,
             ...wheather,
           };
         },
@@ -427,19 +447,29 @@ export class TyphoonUpdatedListener {
         start_date,
       };
       const around_weathers = await Promise.all(
-        getNineCoordinates(central_latitude, central_longitude).map(
+        [
+          {
+            latitude: central_latitude,
+            longitude: central_longitude,
+            bearing: 0,
+            distance: 0,
+          },
+          ...get12Coordinates(central_latitude, central_longitude, 750),
+          ...get12Coordinates(central_latitude, central_longitude, 1500),
+        ].map(
           async (
             location,
             i,
           ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
-            const { latitude, longitude } = location;
+            const { latitude, longitude, bearing, distance } = location;
             const wheather = await this.weatherService.getTyphoonWeatherData({
               date: observation_date,
               long: longitude,
               lat: latitude,
             });
             return {
-              point: i,
+              distance,
+              point: bearing / 30,
               ...wheather,
             };
           },
@@ -511,19 +541,29 @@ export class TyphoonUpdatedListener {
         `[aerisweather] 태풍 detatil 생성 :: aerisweather_id: ${aerisweather_id}, envent_date: ${observation_date}`,
       );
       const around_weathers = await Promise.all(
-        getNineCoordinates(central_latitude, central_longitude).map(
+        [
+          {
+            latitude: central_latitude,
+            longitude: central_longitude,
+            bearing: 0,
+            distance: 0,
+          },
+          ...get12Coordinates(central_latitude, central_longitude, 750),
+          ...get12Coordinates(central_latitude, central_longitude, 1500),
+        ].map(
           async (
             location,
             i,
           ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
-            const { latitude, longitude } = location;
+            const { latitude, longitude, distance, bearing } = location;
             const wheather = await this.weatherService.getTyphoonWeatherData({
               date: observation_date,
               long: longitude,
               lat: latitude,
             });
             return {
-              point: i,
+              point: bearing / 30,
+              distance,
               ...wheather,
             };
           },

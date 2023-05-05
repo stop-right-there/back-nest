@@ -85,6 +85,7 @@ model TyphoonAroundWeather {
   typhoon_id               String        @db.VarChar(100)
   observation_date         DateTime
   point                    Int
+  distance                 Int
   temperature_2m           Float?
   relativehumidity_2m      Float?
   apparent_temperature     Float?
