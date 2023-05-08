@@ -185,4 +185,15 @@ export class TyphoonController {
     const typhoonPrediction = await this.typhoonService.predictTyphoon(recent);
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   }
+
+  // @Post('/db/set')
+  // async setDB() {
+  //   const typhoonPrediction = await this.typhoonService.setDB();
+  //   return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  // }
+  @Post('/db/set/predict')
+  async setDBPredict() {
+    const typhoonPrediction = await this.typhoonService.setDBPredict();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
 }

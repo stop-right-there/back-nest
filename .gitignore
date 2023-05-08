@@ -44,3 +44,6 @@ lerna-debug.log*
 !.example.env
 
 dataSet.json
+typhoons.json
+around_weathers.json
+typhoon_details.json

@@ -75,7 +75,7 @@ model TyphoonDetail {
   source             SOURCE                 @default(GDACS)
   around_weathers    TyphoonAroundWeather[]
   typhoon            Typhoon                @relation(fields: [typhoon_id], references: [typhoon_id])
-  prediction         TyphoonPrediction[]
+  predictions         TyphoonPrediction[]
 
   @@id([typhoon_id, observation_date])
   @@map("typhoon_details")
@@ -104,7 +104,7 @@ model TyphoonAroundWeather {
   typhoon                  Typhoon       @relation(fields: [typhoon_id], references: [typhoon_id])
   typhoon_detail           TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
 
-  @@id([typhoon_id, observation_date, point])
+  @@id([typhoon_id, observation_date, point,distance])
   @@map("typhoon_around_weathers")
 }
 
