@@ -198,4 +198,75 @@ export class WeatherService {
       openWeatherMapRes;
     return weatherData[0];
   }
+
+  async getTyphoonWeatherDataPast({ lat, long, date }: IWeatherGetDTO) {
+    const year = date.getUTCFullYear();
+    const month = (date.getUTCMonth() + 1).toString();
+    const day = date.getUTCDate().toString();
+    const hour = date.getUTCHours().toString();
+    // console.log(`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${long}&start_date=${year}-${
+    //   month.length === 1 ? '0' + month : month
+    // }-${day.length === 1 ? '0' + day : day}&end_date=${year}-${
+    //   month.length === 1 ? '0' + month : month
+    // }-${
+    //   day.length === 1 ? '0' + day : day
+    // }&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,cloudcover_low,cloudcover_mid,direct_normal_irradiance,windspeed_10m,windspeed_100m,winddirection_10m,winddirection_100m,windgusts_10m`)
+
+    try {
+      const { data } = await this.httpService.axiosRef.get(
+        `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${long}&start_date=${year}-${
+          month.length === 1 ? '0' + month : month
+        }-${day.length === 1 ? '0' + day : day}&end_date=${year}-${
+          month.length === 1 ? '0' + month : month
+        }-${
+          day.length === 1 ? '0' + day : day
+        }&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,cloudcover_low,cloudcover_mid,direct_normal_irradiance,windspeed_10m,windspeed_100m,winddirection_10m,winddirection_100m,windgusts_10m`,
+      );
+
+      const { hourly } = data;
+      // hourly 정보에서 필요한 정보만 추출합니다.
+      const {
+        temperature_2m,
+        relativehumidity_2m,
+        pressure_msl,
+        cloudcover,
+        cloudcover_low,
+        cloudcover_mid,
+        direct_normal_irradiance,
+        apparent_temperature,
+        windspeed_10m,
+        windspeed_100m,
+        winddirection_10m,
+        winddirection_100m,
+        windgusts_10m,
+      } = hourly;
+      return {
+        temperature_2m: temperature_2m[Number(hour)] as number,
+        relativehumidity_2m: relativehumidity_2m[Number(hour)] as number,
+        apparent_temperature: apparent_temperature[Number(hour)] as number,
+        pressure_msl: pressure_msl[Number(hour)] as number,
+        cloudcover: cloudcover[Number(hour)] as number,
+        cloudcover_low: cloudcover_low[Number(hour)] as number,
+        cloudcover_mid: cloudcover_mid[Number(hour)] as number,
+        direct_normal_irradiance: direct_normal_irradiance[
+          Number(hour)
+        ] as number,
+        windspeed_10m: windspeed_10m[Number(hour)] as number,
+        windspeed_100m: windspeed_100m[Number(hour)] as number,
+        winddirection_10m: winddirection_10m[Number(hour)] as number,
+        winddirection_100m: winddirection_100m[Number(hour)] as number,
+        windgusts_10m: windgusts_10m[Number(hour)] as number,
+      };
+    } catch (e) {
+      console.log(
+        `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${long}&start_date=${year}-${
+          month.length === 1 ? '0' + month : month
+        }-${day.length === 1 ? '0' + day : day}&end_date=${year}-${
+          month.length === 1 ? '0' + month : month
+        }-${
+          day.length === 1 ? '0' + day : day
+        }&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,cloudcover_low,cloudcover_mid,direct_normal_irradiance,windspeed_10m,windspeed_100m,winddirection_10m,winddirection_100m,windgusts_10m`,
+      );
+    }
+  }
 }

@@ -18,7 +18,8 @@ model Typhoon {
   updated_at         DateTime               @default(now()) @updatedAt
   aerisweather_name  String?                @db.VarChar(30)
   gdacs_name         String?                @db.VarChar(30)
-  around_weathers    TyphoonAroundWeather[]
+  around_weathers_circle    TyphoonAroundWeatherCircle[]
+  around_weathers_grid    TyphoonAroundWeatherGrid[]
   historical_details TyphoonDetail[]
 
   @@map("typhoons")
@@ -73,7 +74,8 @@ model TyphoonDetail {
   nw_lat_64          Float?
   nw_distance_64     Float?
   source             SOURCE                 @default(GDACS)
-  around_weathers    TyphoonAroundWeather[]
+  around_weathers_circle    TyphoonAroundWeatherCircle[]
+  around_weathers_grid    TyphoonAroundWeatherGrid[]
   typhoon            Typhoon                @relation(fields: [typhoon_id], references: [typhoon_id])
   predictions         TyphoonPrediction[]
 
@@ -81,7 +83,7 @@ model TyphoonDetail {
   @@map("typhoon_details")
 }
 
-model TyphoonAroundWeather {
+model TyphoonAroundWeatherCircle {
   typhoon_id               String        @db.VarChar(100)
   observation_date         DateTime
   point                    Int
@@ -105,7 +107,33 @@ model TyphoonAroundWeather {
   typhoon_detail           TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
 
   @@id([typhoon_id, observation_date, point,distance])
-  @@map("typhoon_around_weathers")
+  @@map("typhoon_around_weathers_circle")
+}
+model TyphoonAroundWeatherGrid {
+  typhoon_id               String        @db.VarChar(100)
+  observation_date         DateTime
+  x                    Int
+  y                 Int
+  temperature_2m           Float?
+  relativehumidity_2m      Float?
+  apparent_temperature     Float?
+  pressure_msl             Float?
+  cloudcover               Float?
+  cloudcover_low           Float?
+  cloudcover_mid           Float?
+  direct_normal_irradiance Float?
+  windspeed_10m            Float?
+  windspeed_100m           Float?
+  winddirection_10m        Float?
+  winddirection_100m       Float?
+  windgusts_10m            Float?
+  created_at               DateTime      @default(now())
+  updated_at               DateTime      @default(now()) @updatedAt
+  typhoon                  Typhoon       @relation(fields: [typhoon_id], references: [typhoon_id])
+  typhoon_detail           TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
+
+  @@id([typhoon_id, observation_date, x,y])
+  @@map("typhoon_around_weathers_grid")
 }
 
 model TyphoonPrediction {

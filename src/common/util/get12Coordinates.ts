@@ -31,7 +31,12 @@ function findNewCoordinates(
 
   return {
     latitude: convertRadiansToDegrees(lat2),
-    longitude: convertRadiansToDegrees(lon2),
+    longitude:
+      convertRadiansToDegrees(lon2) > 180
+        ? convertRadiansToDegrees(lon2) - 360
+        : convertRadiansToDegrees(lon2) < -180
+        ? convertRadiansToDegrees(lon2) + 360
+        : convertRadiansToDegrees(lon2),
     bearing,
     distance,
   };

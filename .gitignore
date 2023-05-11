@@ -45,5 +45,7 @@ lerna-debug.log*
 
 dataSet.json
 typhoons.json
+around_weathers_circle.json
+around_weathers_grid.json
 around_weathers.json
 typhoon_details.json

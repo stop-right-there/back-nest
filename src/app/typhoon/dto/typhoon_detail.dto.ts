@@ -1,7 +1,7 @@
 import { IsULID } from '@common/decorator/IsULID';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
-import { TyphoonAroundWeatherDTO } from './typhoon_arount_weather.dto';
+import { TyphoonAroundWeatherCircleDTO } from './typhoon_arount_weather.dto';
 
 export class TyphoonDetailDTO {
   @ApiProperty({
@@ -409,8 +409,8 @@ export class TyphoonDetailDTO {
   @ApiProperty({
     name: 'around_weathers',
     description: '태풍 주변 날씨 프론트에는 해당하지않습니다',
-    type: () => TyphoonAroundWeatherDTO,
+    type: () => TyphoonAroundWeatherCircleDTO,
     isArray: true,
   })
-  arround_weathers?: TyphoonAroundWeatherDTO[];
+  arround_weathers_circle?: TyphoonAroundWeatherCircleDTO[];
 }

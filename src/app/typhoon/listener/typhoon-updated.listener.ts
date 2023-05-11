@@ -1,4 +1,5 @@
 import { get12Coordinates } from '@common/util/get12Coordinates';
+import { generateCoordinates5x5 } from '@common/util/get5x5Coordinates';
 import { parseGDACS_XML } from '@common/util/parseGDACS_XML';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
@@ -140,7 +141,7 @@ export class TyphoonUpdatedListener {
         gdacs_id,
         start_date,
       };
-      const around_weathers = await Promise.all(
+      const around_weathers_circle = await Promise.all(
         [
           {
             latitude: central_latitude,
@@ -154,7 +155,7 @@ export class TyphoonUpdatedListener {
           async (
             location,
             i,
-          ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
+          ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
             const { latitude, longitude, bearing, distance } = location;
             const wheather = await this.weatherService.getTyphoonWeatherData({
               date,
@@ -169,6 +170,27 @@ export class TyphoonUpdatedListener {
           },
         ),
       );
+      const around_weathers_grid = await Promise.all(
+        generateCoordinates5x5(central_latitude, central_longitude).map(
+          async (
+            location,
+          ): Promise<Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput> => {
+            const { latitude, longitude, x, y } = location;
+
+            const wheather = await this.weatherService.getTyphoonWeatherData({
+              date,
+              long: longitude,
+              lat: latitude,
+            });
+
+            return {
+              ...wheather,
+              x: Number(x),
+              y: Number(y),
+            };
+          },
+        ),
+      );
       const detail: Prisma.TyphoonDetailCreateWithoutTyphoonInput = {
         observation_date,
         central_latitude,
@@ -176,8 +198,11 @@ export class TyphoonUpdatedListener {
         maximum_wind_speed,
         grade,
         central_pressure: pressure,
-        around_weathers: {
-          createMany: { data: around_weathers },
+        around_weathers_circle: {
+          createMany: { data: around_weathers_circle },
+        },
+        around_weathers_grid: {
+          createMany: { data: around_weathers_grid },
         },
       };
 
@@ -265,7 +290,7 @@ export class TyphoonUpdatedListener {
 
     //태풍의 중심좌표와 8개의 1000km (45도 각도)를 구합니다.
     //구한 좌표를 기반으로 날씨정보를 가져옵니다.
-    const arroundWeatherList = await Promise.all(
+    const around_weathers_circle = await Promise.all(
       [
         {
           latitude: central_latitude,
@@ -279,7 +304,7 @@ export class TyphoonUpdatedListener {
         async (
           location,
           i,
-        ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
+        ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
           const { latitude, longitude, bearing, distance } = location;
           const wheather = await this.weatherService.getTyphoonWeatherData({
             date,
@@ -287,9 +312,30 @@ export class TyphoonUpdatedListener {
             lat: latitude,
           });
           return {
-            point: bearing / 30,
             distance,
+            point: bearing / 30,
             ...wheather,
+          };
+        },
+      ),
+    );
+    const around_weathers_grid = await Promise.all(
+      generateCoordinates5x5(central_latitude, central_longitude).map(
+        async (
+          location,
+        ): Promise<Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput> => {
+          const { latitude, longitude, x, y } = location;
+
+          const wheather = await this.weatherService.getTyphoonWeatherData({
+            date,
+            long: longitude,
+            lat: latitude,
+          });
+
+          return {
+            ...wheather,
+            x: Number(x),
+            y: Number(y),
           };
         },
       ),
@@ -308,7 +354,12 @@ export class TyphoonUpdatedListener {
       await this.prisma.typhoonDetail.create({
         data: {
           ...typhoonDetailDTO,
-          around_weathers: { createMany: { data: arroundWeatherList } },
+          around_weathers_circle: {
+            createMany: { data: around_weathers_circle },
+          },
+          around_weathers_grid: {
+            createMany: { data: around_weathers_grid },
+          },
         },
       });
     } catch (e) {
@@ -323,8 +374,21 @@ export class TyphoonUpdatedListener {
     const preprocessed_data = await this.typhoonService.getRecentTyphoonData(
       exist.typhoon_id,
     );
+
+    const { historical_details, ...typhoonData } = preprocessed_data;
+    const details = historical_details.map(
+      ({ around_weathers_circle, ...data }) => {
+        return {
+          ...data,
+          around_weathers: around_weathers_circle,
+        };
+      },
+    );
     //예측데이터 추가
-    await this.typhoonService.predictTyphoon(preprocessed_data);
+    await this.typhoonService.predictTyphoon({
+      ...typhoonData,
+      historical_details: details,
+    });
     // #endregion
   }
 
@@ -401,7 +465,7 @@ export class TyphoonUpdatedListener {
           observation_date,
         },
       },
-      around_weathers: {
+      around_weathers_circle: {
         where: {
           observation_date,
         },
@@ -446,7 +510,7 @@ export class TyphoonUpdatedListener {
         aerisweather_id,
         start_date,
       };
-      const around_weathers = await Promise.all(
+      const around_weathers_circle = await Promise.all(
         [
           {
             latitude: central_latitude,
@@ -460,7 +524,7 @@ export class TyphoonUpdatedListener {
           async (
             location,
             i,
-          ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
+          ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
             const { latitude, longitude, bearing, distance } = location;
             const wheather = await this.weatherService.getTyphoonWeatherData({
               date: observation_date,
@@ -475,6 +539,27 @@ export class TyphoonUpdatedListener {
           },
         ),
       );
+      const around_weathers_grid = await Promise.all(
+        generateCoordinates5x5(central_latitude, central_longitude).map(
+          async (
+            location,
+          ): Promise<Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput> => {
+            const { latitude, longitude, x, y } = location;
+
+            const wheather = await this.weatherService.getTyphoonWeatherData({
+              date: observation_date,
+              long: longitude,
+              lat: latitude,
+            });
+
+            return {
+              ...wheather,
+              x: Number(x),
+              y: Number(y),
+            };
+          },
+        ),
+      );
       const detail: Prisma.TyphoonDetailCreateWithoutTyphoonInput = {
         observation_date,
         central_latitude,
@@ -483,8 +568,11 @@ export class TyphoonUpdatedListener {
         grade: Grade[grade_type],
         grade_type,
         central_pressure: pressure,
-        around_weathers: {
-          createMany: { data: around_weathers },
+        around_weathers_circle: {
+          createMany: { data: around_weathers_circle },
+        },
+        around_weathers_grid: {
+          createMany: { data: around_weathers_grid },
         },
       };
 
@@ -540,7 +628,7 @@ export class TyphoonUpdatedListener {
       this.logger.log(
         `[aerisweather] 태풍 detatil 생성 :: aerisweather_id: ${aerisweather_id}, envent_date: ${observation_date}`,
       );
-      const around_weathers = await Promise.all(
+      const around_weathers_circle = await Promise.all(
         [
           {
             latitude: central_latitude,
@@ -554,17 +642,38 @@ export class TyphoonUpdatedListener {
           async (
             location,
             i,
-          ): Promise<Prisma.TyphoonAroundWeatherCreateManyTyphoon_detailInput> => {
-            const { latitude, longitude, distance, bearing } = location;
+          ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
+            const { latitude, longitude, bearing, distance } = location;
             const wheather = await this.weatherService.getTyphoonWeatherData({
               date: observation_date,
               long: longitude,
               lat: latitude,
             });
             return {
-              point: bearing / 30,
               distance,
+              point: bearing / 30,
               ...wheather,
+            };
+          },
+        ),
+      );
+      const around_weathers_grid = await Promise.all(
+        generateCoordinates5x5(central_latitude, central_longitude).map(
+          async (
+            location,
+          ): Promise<Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput> => {
+            const { latitude, longitude, x, y } = location;
+
+            const wheather = await this.weatherService.getTyphoonWeatherData({
+              date: observation_date,
+              long: longitude,
+              lat: latitude,
+            });
+
+            return {
+              ...wheather,
+              x: Number(x),
+              y: Number(y),
             };
           },
         ),
@@ -573,17 +682,36 @@ export class TyphoonUpdatedListener {
       await this.prisma.typhoonDetail.create({
         data: {
           ...historical_details,
-          around_weathers: {
-            createMany: { data: around_weathers },
+          around_weathers_circle: {
+            createMany: { data: around_weathers_circle },
+          },
+          around_weathers_grid: {
+            createMany: { data: around_weathers_grid },
           },
         },
       });
 
+      //가장 최근의 2점 가져오기
       const preprocessed_data = await this.typhoonService.getRecentTyphoonData(
         exist.typhoon_id,
       );
+
+      const { historical_details: preprocessedDetail, ...typhoonData } =
+        preprocessed_data;
+      const details = preprocessedDetail.map(
+        ({ around_weathers_circle, ...data }) => {
+          return {
+            ...data,
+            around_weathers: around_weathers_circle,
+          };
+        },
+      );
       //예측데이터 추가
-      await this.typhoonService.predictTyphoon(preprocessed_data);
+      await this.typhoonService.predictTyphoon({
+        ...typhoonData,
+        historical_details: details,
+      });
+      //예측데이터 추가
     }
     if (
       exist.historical_details.length > 0 &&

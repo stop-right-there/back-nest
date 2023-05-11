@@ -1,4 +1,4 @@
-import { TyphoonAroundWeatherDTO } from './typhoon_arount_weather.dto';
+import { TyphoonAroundWeatherCircleDTO } from './typhoon_arount_weather.dto';
 
 // AI 서버 보내기용
 export class TyphoonPredictionDTO {
@@ -7,5 +7,5 @@ export class TyphoonPredictionDTO {
   start_date: string | Date;
   end_date?: string | Date;
   observation_date: string | Date;
-  around_weathers: TyphoonAroundWeatherDTO[];
+  around_weathers_circle: TyphoonAroundWeatherCircleDTO[];
 }
