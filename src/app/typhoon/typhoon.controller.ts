@@ -1,7 +1,14 @@
 import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { BaseApiResponse } from '@common/response/BaseApiResponse';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiExtraModels,
   ApiOperation,
@@ -138,8 +145,14 @@ export class TyphoonController {
   async getTyphoonDetail(
     @Param() { typhoon_id }: { typhoon_id: string },
   ): Promise<BaseApiResponse<TyphoonDetailResponse>> {
+    console.log(typhoon_id);
     const typhoon = await this.typhoonService.getTyphoonDetail(typhoon_id);
-
+    if (!typhoon)
+      throw new BadRequestException('해당 태풍을 찾을 수 없습니다.');
+    if (typhoon.historical_details.length === 0)
+      return new BaseApiResponse(baseApiResponeStatus.SUCCESS, {
+        ...typhoon,
+      });
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, {
       ...typhoon,
       current_detail: typhoon.historical_details[0] || undefined,
