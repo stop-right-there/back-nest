@@ -117,6 +117,11 @@ export class TyphoonController {
 
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, result);
   }
+  @Get('/list')
+  async getTyphoonLists() {
+    const typhoonList = await this.typhoonService.getTyphoonLists();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonList);
+  }
 
   @ApiOperation({
     summary: '태풍 상세 조회 API ',
@@ -185,12 +190,6 @@ export class TyphoonController {
     );
 
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
-  }
-
-  @Get('/list')
-  async getTyphoonLists() {
-    const typhoonList = await this.typhoonService.getTyphoonLists();
-    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonList);
   }
 
   @Get('/predict/grid/test')
