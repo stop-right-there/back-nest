@@ -80,7 +80,17 @@ export class TyphoonDetailDTO {
   })
   @IsString()
   @IsOptional()
-  grade_type?: 'TD' | 'TS' | 'H1' | 'H2' | 'H3' | 'H4' | 'H5' | 'TY' | 'STY';
+  grade_type?:
+    | 'TD'
+    | 'TS'
+    | 'H1'
+    | 'H2'
+    | 'H3'
+    | 'H4'
+    | 'H5'
+    | 'TY'
+    | 'STY'
+    | 'STS';
 
   @ApiProperty({
     name: 'se_long_34',
@@ -412,5 +422,5 @@ export class TyphoonDetailDTO {
     type: () => TyphoonAroundWeatherCircleDTO,
     isArray: true,
   })
-  arround_weathers_circle?: TyphoonAroundWeatherCircleDTO[];
+  around_weathers_circle?: TyphoonAroundWeatherCircleDTO[];
 }

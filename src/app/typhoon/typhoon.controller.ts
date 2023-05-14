@@ -1,7 +1,7 @@
 import { SwaggerResponse } from '@common/decorator/SwaggerResponse.decorator';
 import { BaseApiResponse } from '@common/response/BaseApiResponse';
 import { baseApiResponeStatus } from '@common/response/baseApiResponeStatus';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
   ApiExtraModels,
   ApiOperation,
@@ -27,6 +27,7 @@ import { TyphoonService } from './typhoon.service';
   TyphoonDetailResponse,
   TyphoonPredictionResponse,
   BaseApiResponse,
+  TyphoonDetailResponse,
 )
 export class TyphoonController {
   constructor(
@@ -88,9 +89,7 @@ export class TyphoonController {
     example: '7',
   })
   @Get('/')
-  async getTyphoonList(
-    @Query() query: TyphoonQuery,
-  ): Promise<BaseApiResponse<TyphoonListResponseItem[]>> {
+  async getTyphoonList(@Query() query: TyphoonQuery) {
     const { startDate, endDate, period } = query;
     const typhoonList = await this.typhoonService.getTyphoonList({
       start_date: startDate && new Date(startDate),
@@ -122,7 +121,7 @@ export class TyphoonController {
   })
   @SwaggerResponse(
     200, // status code
-    TyphoonDetailResponse, // result에 담길 DTO
+    TyphoonListResponseItem, // result에 담길 DTO
     false, // result 가 array인지
     '성공시', // description
     baseApiResponeStatus.SUCCESS,
@@ -177,6 +176,18 @@ export class TyphoonController {
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   }
 
+  @Get('/list')
+  async getTyphoonLists() {
+    const typhoonList = await this.typhoonService.getTyphoonLists();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonList);
+  }
+
+  @Get('/predict/grid/test')
+  async predictGridTest() {
+    const testBody = await this.typhoonService.gridTest();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, testBody);
+  }
+
   // @Post('/predict/test')
   // async predictTest2(@Body() body: any) {
   // const recent = await this.typhoonService.getRecentTyphoonData(
@@ -191,9 +202,28 @@ export class TyphoonController {
   //   const typhoonPrediction = await this.typhoonService.setDB();
   //   return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   // }
-  // @Post('/db/set/predict')
-  // async setDBPredict() {
-  //   const typhoonPrediction = await this.typhoonService.setDBPredict();
-  //   return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
-  // }
+  @Post('/db/set/predict/circle')
+  async setDBPredictCircle() {
+    const typhoonPrediction = await this.typhoonService.setDBPredictCircle();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
+
+  @Post('/db/set/predict/grid')
+  async setDBPredictGrid() {
+    const typhoonPrediction = await this.typhoonService.setDBPredictGrid();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
+  @Post('/db/set/predict/circle/weather')
+  async setDBPredictCircleWithWeatherPrediction() {
+    const typhoonPrediction =
+      await this.typhoonService.setDBPredictCircleWithWeatherPrediction();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
+
+  @Post('/db/set/predict/grid/weather')
+  async setDBPredictGridWithWeatherPrediction() {
+    const typhoonPrediction =
+      await this.typhoonService.setDBPredictGridWithWeatherPrediction();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
 }

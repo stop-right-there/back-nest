@@ -17,11 +17,5 @@ export class TyphoonDetailResponse extends TyphoonDTO {
   })
   historical_details: TyphoonDetailDTO[];
 
-  @ApiProperty({
-    isArray: true,
-    type: () => TyphoonDetailDTO,
-    description: '예측 태풍 정보 아직 구현되지 않음',
-  })
-  predictions?: any[];
   news?: any[];
 }

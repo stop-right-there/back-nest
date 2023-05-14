@@ -3,7 +3,7 @@ export function generateCoordinates5x5(
   lng: number,
   rowCount = 5,
   colCount = 5,
-  distance = 750,
+  distance = 0.75,
 ): {
   latitude: number;
   longitude: number;
@@ -45,7 +45,9 @@ export function generateCoordinates5x5(
 
       coordinates.push({
         latitude: newLat,
-        longitude: newLng,
+        longitude:
+          newLng > 180 ? newLng - 360 : newLng < -180 ? newLng + 360 : newLng,
+
         quadrant: quadrant,
         x: j === 0 ? '0' : j.toString(),
         y: i === 0 ? '0' : i.toString(),

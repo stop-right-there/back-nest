@@ -9,6 +9,9 @@ import {
 } from '../interfaces/weather.interface';
 import { weatherMock } from '../mock/weather.mock';
 
+import { get12Coordinates } from '@common/util/get12Coordinates';
+import { generateCoordinates5x5 } from '@common/util/get5x5Coordinates';
+import { Prisma } from '@prisma/client';
 import { urlBuilder } from '../util/urlbuilder';
 
 @Injectable()
@@ -268,5 +271,69 @@ export class WeatherService {
         }&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,pressure_msl,cloudcover,cloudcover_low,cloudcover_mid,direct_normal_irradiance,windspeed_10m,windspeed_100m,winddirection_10m,winddirection_100m,windgusts_10m`,
       );
     }
+  }
+
+  async getGridAroundWeatherData(
+    central_latitude: number,
+    central_longitude: number,
+    observation_date: Date,
+  ) {
+    return await Promise.all(
+      generateCoordinates5x5(central_latitude, central_longitude).map(
+        async (
+          location,
+        ): Promise<Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput> => {
+          const { latitude, longitude, x, y } = location;
+
+          const wheather = await this.getTyphoonWeatherData({
+            date: observation_date,
+            long: longitude,
+            lat: latitude,
+          });
+
+          return {
+            ...wheather,
+            x: Number(x),
+            y: Number(y),
+          };
+        },
+      ),
+    );
+  }
+
+  async getCircleAroundWeatherData(
+    central_latitude: number,
+    central_longitude: number,
+    observation_date: Date,
+  ) {
+    return await Promise.all(
+      [
+        {
+          latitude: central_latitude,
+          longitude: central_longitude,
+          bearing: 0,
+          distance: 0,
+        },
+        ...get12Coordinates(central_latitude, central_longitude, 750),
+        ...get12Coordinates(central_latitude, central_longitude, 1500),
+      ].map(
+        async (
+          location,
+          i,
+        ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
+          const { latitude, longitude, bearing, distance } = location;
+          const wheather = await this.getTyphoonWeatherData({
+            date: observation_date,
+            long: longitude,
+            lat: latitude,
+          });
+          return {
+            distance,
+            point: bearing / 30,
+            ...wheather,
+          };
+        },
+      ),
+    );
   }
 }

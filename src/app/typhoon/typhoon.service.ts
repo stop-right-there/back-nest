@@ -1,5 +1,6 @@
 import { WeatherService } from '@app/weather/provider/weather.service';
 import { get12Coordinates } from '@common/util/get12Coordinates';
+import { generateCoordinates5x5 } from '@common/util/get5x5Coordinates';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -7,6 +8,7 @@ import {
   Prisma,
   Typhoon,
   TyphoonAroundWeatherCircle,
+  TyphoonAroundWeatherGrid,
   TyphoonDetail,
 } from '@prisma/client';
 import { PrismaService } from '@src/prisma/prisma.service';
@@ -31,7 +33,10 @@ export class TyphoonService {
             observation_date: 'desc',
           },
           include: {
-            predictions: true,
+            predictions_circle: true,
+            predictions_grid: true,
+            predictions_circle_with_weather_prediction: true,
+            predictions_grid_with_weather_prediction: true,
           },
         },
       },
@@ -65,7 +70,10 @@ export class TyphoonService {
               observation_date: 'desc',
             },
             include: {
-              predictions: true,
+              predictions_circle: true,
+              predictions_grid: true,
+              predictions_circle_with_weather_prediction: true,
+              predictions_grid_with_weather_prediction: true,
             },
           },
         },
@@ -92,7 +100,8 @@ export class TyphoonService {
               observation_date: 'desc',
             },
             include: {
-              predictions: true,
+              predictions_circle: true,
+              predictions_grid: true,
             },
           },
         },
@@ -119,7 +128,8 @@ export class TyphoonService {
               observation_date: 'desc',
             },
             include: {
-              predictions: true,
+              predictions_circle: true,
+              predictions_grid: true,
             },
           },
         },
@@ -135,11 +145,16 @@ export class TyphoonService {
             observation_date: 'desc',
           },
           include: {
-            predictions: true,
+            predictions_circle: true,
+            predictions_grid: true,
           },
         },
       },
     });
+  }
+
+  async getTyphoonLists() {
+    return await this.prisma.typhoon.findMany();
   }
 
   async predictTyphoonTest(typhoon_id: string) {
@@ -158,36 +173,26 @@ export class TyphoonService {
                 point: 'asc',
               },
             },
+            around_weathers_grid: true,
           },
         },
       },
     });
   }
 
-  async predictTyphoon(
+  // 앞으로 발생한 태풍 예측
+  async predictTyphoonCircle(
     data: Typhoon & {
       historical_details: (TyphoonDetail & {
-        around_weathers: TyphoonAroundWeatherCircle[];
+        around_weathers_circle: TyphoonAroundWeatherCircle[];
       })[];
     },
     count = 12,
     query_hour = 6,
   ) {
     const predict_url = this.configService.get('PREDICT_URL');
-
-    const predict: IPredictResponse[] = await Promise.all(
-      Array(count)
-        .fill(0)
-        .map(async (_, i) => {
-          const { data: result }: { data: IPredictResponse } =
-            await this.httpService.axiosRef.post(predict_url, {
-              ...data,
-              query_hour: query_hour * (i + 1),
-            });
-          console.log(result);
-          return result;
-        }),
-    );
+    if (data.historical_details.length < 2) return;
+    // const {} = data;
     const observation_date = new Date(
       Math.max(
         ...data.historical_details.map(({ observation_date }) =>
@@ -195,16 +200,46 @@ export class TyphoonService {
         ),
       ),
     );
-    const newPredictions = await this.prisma.typhoonPrediction
-      .createMany({
-        data: predict.map((p) => ({
+    const existPredictions = await this.prisma.typhoonPredictionCircle.findMany(
+      {
+        where: {
           typhoon_id: data.typhoon_id,
           observation_date: observation_date,
-          prediction_date: p.prediction_date,
-          central_latitude: p.central_latitude,
-          central_longitude: p.central_longitude,
-          grade: p.units.grade[p.grade],
-        })),
+        },
+      },
+    );
+    if (existPredictions.length > 0) {
+      return;
+    }
+    const predict: IPredictResponse[] = await Promise.all(
+      Array(count)
+        .fill(0)
+        .map(async (_, i) => {
+          try {
+            const { data: result }: { data: IPredictResponse } =
+              await this.httpService.axiosRef.post(`${predict_url}/circle`, {
+                ...data,
+                query_hour: query_hour * (i + 1),
+              });
+
+            console.log(result);
+            return result;
+          } catch (e) {}
+        }),
+    );
+
+    const newPredictions = await this.prisma.typhoonPredictionCircle
+      .createMany({
+        data: predict
+          .filter((p) => p)
+          .map((p) => ({
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+            prediction_date: p.prediction_date,
+            central_latitude: p.central_latitude,
+            central_longitude: p.central_longitude,
+            grade: p.units.grade[p.grade],
+          })),
       })
       .catch((e) => {
         console.log(e);
@@ -212,10 +247,252 @@ export class TyphoonService {
     return newPredictions;
   }
 
-  async predictTyphoonDBset(
+  async predictTyphoonGrid(
     data: Typhoon & {
       historical_details: (TyphoonDetail & {
-        around_weathers: TyphoonAroundWeatherCircle[];
+        around_weathers_grid: TyphoonAroundWeatherGrid[];
+      })[];
+    },
+    count = 12,
+    query_hour = 6,
+  ) {
+    const predict_url = this.configService.get('PREDICT_URL');
+    if (data.historical_details.length < 2) {
+      return;
+    }
+    const observation_date = new Date(
+      Math.max(
+        ...data.historical_details.map(({ observation_date }) =>
+          observation_date.getTime(),
+        ),
+      ),
+    );
+    const existPredictions = await this.prisma.typhoonPredictionGrid.findMany({
+      where: {
+        typhoon_id: data.typhoon_id,
+        observation_date: observation_date,
+      },
+    });
+    if (existPredictions.length > 0) {
+      return;
+    }
+
+    const predict: IPredictResponse[] = await Promise.all(
+      Array(count)
+        .fill(0)
+        .map(async (_, i) => {
+          try {
+            const { data: result }: { data: IPredictResponse } =
+              await this.httpService.axiosRef.post(`${predict_url}/grid`, {
+                ...data,
+                query_hour: query_hour * (i + 1),
+              });
+            console.log(result);
+            return result;
+          } catch (e) {}
+        }),
+    );
+
+    const newPredictions = await this.prisma.typhoonPredictionGrid
+      .createMany({
+        data: predict
+          .filter((p) => p)
+          .map((p) => ({
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+            prediction_date: p.prediction_date,
+            central_latitude: p.central_latitude,
+            central_longitude: p.central_longitude,
+            grade: p.units.grade[p.grade],
+          })),
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+    return newPredictions;
+  }
+
+  async predictTyphoonCircleWithWeatherPrediction(
+    data: Typhoon & {
+      historical_details: (TyphoonDetail & {
+        around_weathers_circle: TyphoonAroundWeatherCircle[];
+      })[];
+    },
+    count = 12,
+    query_hour = 6,
+  ) {
+    const predict_url = this.configService.get('PREDICT_URL');
+    const { historical_details, ...typhoon } = data;
+    if (historical_details.length < 2) {
+      return;
+    }
+    const observation_date = new Date(
+      Math.max(
+        ...data.historical_details.map(({ observation_date }) =>
+          observation_date.getTime(),
+        ),
+      ),
+    );
+    const existCount =
+      await this.prisma.typhoonPredictionCircleWithAroundWeatherPrediction.count(
+        {
+          where: {
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+          },
+        },
+      );
+    if (existCount === count) return;
+    const detailDatas: (Partial<TyphoonDetail> & {
+      around_weathers_circle:
+        | TyphoonAroundWeatherCircle[]
+        | Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput[];
+      prediction_date?: Date;
+    })[][] = [historical_details];
+    const predict: IPredictResponse[] = [];
+    for (let i = 0; i < count; i++) {
+      console.log(i);
+      const { data: result }: { data: IPredictResponse } =
+        await this.httpService.axiosRef
+          .post(predict_url, {
+            ...typhoon,
+            historical_details: detailDatas[i],
+            query_hour: query_hour,
+          })
+          .catch((e) => {
+            console.log(e);
+            return { data: null };
+          });
+      predict.push(result);
+      //예측결과에 대한 날씨 조회
+      const around_weathers_circle: Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput[] =
+        await this.weatherService.getCircleAroundWeatherData(
+          result.central_latitude,
+          result.central_longitude,
+          new Date(result.prediction_date),
+        );
+      detailDatas.push([
+        {
+          typhoon_id: data.typhoon_id,
+          observation_date: new Date(result.prediction_date), // 예측을 위한 관측 시간 임의 설정
+          central_latitude: result.central_latitude,
+          central_longitude: result.central_longitude,
+          grade_type: result.units.grade[result.grade],
+          around_weathers_circle,
+        },
+        detailDatas[i][0], //이전 데이터중 최신데이터를 뒤에 추가
+      ]);
+    }
+
+    const newPredictions =
+      await this.prisma.typhoonPredictionCircleWithAroundWeatherPrediction.createMany(
+        {
+          data: predict.map((p) => ({
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+            prediction_date: p.prediction_date,
+            central_latitude: p.central_latitude,
+            central_longitude: p.central_longitude,
+            grade: p.units.grade[p.grade],
+          })),
+        },
+      );
+    return newPredictions;
+  }
+
+  async predictTyphoonGridWithWeatherPrediction(
+    data: Typhoon & {
+      historical_details: (TyphoonDetail & {
+        around_weathers_grid: TyphoonAroundWeatherGrid[];
+      })[];
+    },
+    count = 12,
+    query_hour = 6,
+  ) {
+    const predict_url = this.configService.get('PREDICT_URL');
+    const { historical_details, ...typhoon } = data;
+    if (historical_details.length < 2) {
+      return;
+    }
+
+    const observation_date = new Date(
+      Math.max(
+        ...data.historical_details.map(({ observation_date }) =>
+          observation_date.getTime(),
+        ),
+      ),
+    );
+    const existCount =
+      await this.prisma.typhoonPredictionGridWithAroundWeatherPrediction.count({
+        where: {
+          typhoon_id: data.typhoon_id,
+          observation_date: observation_date,
+        },
+      });
+    if (existCount === count) return;
+
+    const detailDatas: (Partial<TyphoonDetail> & {
+      around_weathers_grid:
+        | TyphoonAroundWeatherGrid[]
+        | Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput[];
+      prediction_date?: Date;
+    })[][] = [historical_details];
+    const predict: IPredictResponse[] = [];
+    for (let i = 0; i < count; i++) {
+      console.log(i);
+      const { data: result }: { data: IPredictResponse } =
+        await this.httpService.axiosRef
+          .post(predict_url, {
+            ...typhoon,
+            historical_details: detailDatas[i],
+            query_hour: query_hour,
+          })
+          .catch((e) => {
+            console.log(e);
+            return { data: null };
+          });
+      predict.push(result);
+      //예측결과에 대한 날씨 조회
+      const around_weathers_grid: Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput[] =
+        await this.weatherService.getGridAroundWeatherData(
+          result.central_latitude,
+          result.central_longitude,
+          new Date(result.prediction_date),
+        );
+      detailDatas.push([
+        {
+          typhoon_id: data.typhoon_id,
+          observation_date: new Date(result.prediction_date), // 예측을 위한 관측 시간 임의 설정
+          central_latitude: result.central_latitude,
+          central_longitude: result.central_longitude,
+          grade_type: result.units.grade[result.grade],
+          around_weathers_grid,
+        },
+        detailDatas[i][0], //이전 데이터중 최신데이터를 뒤에 추가
+      ]);
+    }
+
+    const newPredictions =
+      await this.prisma.typhoonPredictionGridWithAroundWeatherPrediction.createMany(
+        {
+          data: predict.map((p) => ({
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+            prediction_date: p.prediction_date,
+            central_latitude: p.central_latitude,
+            central_longitude: p.central_longitude,
+            grade: p.units.grade[p.grade],
+          })),
+        },
+      );
+    return newPredictions;
+  }
+
+  // 이전에 가지고 있던 데이터에 대한 예측
+  async predictTyphoonCircleWithWeatherPredictionPast(
+    data: Typhoon & {
+      historical_details: (TyphoonDetail & {
+        around_weathers_circle: TyphoonAroundWeatherCircle[];
       })[];
     },
     count = 12,
@@ -224,6 +501,7 @@ export class TyphoonService {
     const predict_url = this.configService.get('PREDICT_URL');
 
     const { historical_details, ...typhoon } = data;
+    if (historical_details.length < 2) return;
     const observation_date = new Date(
       Math.max(
         ...historical_details.map(({ observation_date }) =>
@@ -231,8 +509,19 @@ export class TyphoonService {
         ),
       ),
     );
+    const existCount =
+      await this.prisma.typhoonPredictionCircleWithAroundWeatherPrediction.count(
+        {
+          where: {
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+          },
+        },
+      );
+    if (existCount === count) return;
+
     const detailDatas: (Partial<TyphoonDetail> & {
-      around_weathers:
+      around_weathers_circle:
         | TyphoonAroundWeatherCircle[]
         | Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput[];
       prediction_date?: Date;
@@ -255,7 +544,7 @@ export class TyphoonService {
           });
       predict.push(result);
       //예측결과에 대한 날씨 조회
-      const around_weathers: Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput[] =
+      const around_weathers_circle: Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput[] =
         await Promise.all(
           [
             {
@@ -277,7 +566,6 @@ export class TyphoonService {
           ].map(
             async (
               location,
-              i,
             ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
               const { latitude, longitude, bearing, distance } = location;
               const wheather =
@@ -302,22 +590,135 @@ export class TyphoonService {
           central_latitude: result.central_latitude,
           central_longitude: result.central_longitude,
           grade_type: result.units.grade[result.grade],
-          around_weathers,
+          around_weathers_circle,
         },
         detailDatas[i][0], //이전 데이터중 최신데이터를 뒤에 추가
       ]);
     }
 
-    const newPredictions = await this.prisma.typhoonPrediction.createMany({
-      data: predict.map((p) => ({
-        typhoon_id: data.typhoon_id,
-        observation_date: observation_date,
-        prediction_date: p.prediction_date,
-        central_latitude: p.central_latitude,
-        central_longitude: p.central_longitude,
-        grade: p.units.grade[p.grade],
-      })),
-    });
+    const newPredictions =
+      await this.prisma.typhoonPredictionCircleWithAroundWeatherPrediction.createMany(
+        {
+          data: predict.map((p) => ({
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+            prediction_date: p.prediction_date,
+            central_latitude: p.central_latitude,
+            central_longitude: p.central_longitude,
+            grade: p.units.grade[p.grade],
+          })),
+        },
+      );
+    console.log(observation_date);
+    return newPredictions;
+  }
+  async predictTyphoonGridWithWeatherPredictionPast(
+    data: Typhoon & {
+      historical_details: (TyphoonDetail & {
+        around_weathers_grid: TyphoonAroundWeatherGrid[];
+      })[];
+    },
+    count = 12,
+    query_hour = 6,
+  ) {
+    const predict_url = this.configService.get('PREDICT_URL');
+    const { historical_details, ...typhoon } = data;
+    const observation_date = new Date(
+      Math.max(
+        ...historical_details.map(({ observation_date }) =>
+          observation_date.getTime(),
+        ),
+      ),
+    );
+
+    if (historical_details.length < 2) {
+      return;
+    }
+    const existCount =
+      await this.prisma.typhoonPredictionGridWithAroundWeatherPrediction.count({
+        where: {
+          typhoon_id: data.typhoon_id,
+          observation_date: observation_date,
+        },
+      });
+    if (existCount === count) {
+      return;
+    }
+    const detailDatas: (Partial<TyphoonDetail> & {
+      around_weathers_grid:
+        | TyphoonAroundWeatherGrid[]
+        | Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput[];
+      prediction_date?: Date;
+    })[][] = [historical_details];
+
+    //예측정보 임시저장
+    const predict: IPredictResponse[] = [];
+    for (let i = 0; i < count; i++) {
+      console.log(i);
+      const { data: result }: { data: IPredictResponse } =
+        await this.httpService.axiosRef
+          .post(predict_url, {
+            ...typhoon,
+            historical_details: detailDatas[i],
+            query_hour: query_hour,
+          })
+          .catch((e) => {
+            console.log(e);
+            return { data: null };
+          });
+      predict.push(result);
+      //예측결과에 대한 날씨 조회
+      const around_weathers_grid: Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput[] =
+        await Promise.all(
+          generateCoordinates5x5(
+            result.central_latitude,
+            result.central_longitude,
+          ).map(
+            async (
+              location,
+            ): Promise<Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput> => {
+              const { latitude, longitude, y, x } = location;
+              const wheather =
+                await this.weatherService.getTyphoonWeatherDataPast({
+                  date: new Date(observation_date),
+                  long: longitude,
+                  lat: latitude,
+                });
+
+              return {
+                ...wheather,
+                y,
+                x,
+              };
+            },
+          ),
+        );
+      detailDatas.push([
+        {
+          typhoon_id: data.typhoon_id,
+          observation_date: new Date(result.prediction_date), // 예측을 위한 관측 시간 임의 설정
+          central_latitude: result.central_latitude,
+          central_longitude: result.central_longitude,
+          grade_type: result.units.grade[result.grade],
+          around_weathers_grid,
+        },
+        detailDatas[i][0], //이전 데이터중 최신데이터를 뒤에 추가
+      ]);
+    }
+
+    const newPredictions =
+      await this.prisma.typhoonPredictionGridWithAroundWeatherPrediction.createMany(
+        {
+          data: predict.map((p) => ({
+            typhoon_id: data.typhoon_id,
+            observation_date: observation_date,
+            prediction_date: p.prediction_date,
+            central_latitude: p.central_latitude,
+            central_longitude: p.central_longitude,
+            grade: p.units.grade[p.grade],
+          })),
+        },
+      );
     console.log(observation_date);
     return newPredictions;
   }
@@ -327,7 +728,7 @@ export class TyphoonService {
       where: { typhoon_id: typhoonId },
       include: {
         historical_details: {
-          include: { around_weathers_circle: true },
+          include: { around_weathers_circle: true, around_weathers_grid: true },
           take: 2,
           orderBy: { observation_date: 'desc' },
         },
@@ -335,52 +736,158 @@ export class TyphoonService {
     });
   }
 
-  // async setDBPredict() {
-  //   const allTyphoondata = await this.prisma.typhoon.findMany({
-  //     orderBy: { typhoon_id: 'desc' },
-  //   });
-  //   // 순서를 보장하기위함
-  //   for (const typhoon of allTyphoondata) {
-  //     const { typhoon_id } = typhoon;
-  //     // 4 개인경우 [1,2] [2.3] [3,4] 총 세번
-  //     // 6 개인경우 [1,2] [2.3] [3,4] [4,5] [5,6] 총 다섯번
-  //     // 즉 n 개인경우 n-1 번
-  //     const detailCount = await this.prisma.typhoonDetail.count({
-  //       where: { typhoon_id },
-  //     });
-  //     const skipArray = Array(detailCount - 1)
-  //       .fill(0)
-  //       .map((_, i) => i);
-  //     console.log(skipArray);
-  //     //이역시 순서 보장하기위함
-  //     for (const skip of skipArray) {
-  //       const typhoonDetailData = await this.prisma.typhoonDetail.findMany({
-  //         where: { typhoon_id },
-  //         skip: skip,
-  //         orderBy: { observation_date: 'desc' },
-  //         take: 2,
-  //         include: {
-  //           around_weathers_circle: true,
-  //         },
-  //       });
-  //       const data = typhoonDetailData.map(
-  //         ({ around_weathers_circle, ...detail }) => ({
-  //           ...detail,
-  //           around_weathers: around_weathers_circle,
-  //         }),
-  //       );
+  async setDBPredictCircle() {
+    const allTyphoondata = await this.prisma.typhoon.findMany({
+      orderBy: { typhoon_id: 'desc' },
+    });
+    // 순서를 보장하기위함
+    for (const typhoon of allTyphoondata) {
+      const { typhoon_id } = typhoon;
+      // 4 개인경우 [1,2] [2.3] [3,4] 총 세번
+      // 6 개인경우 [1,2] [2.3] [3,4] [4,5] [5,6] 총 다섯번
+      // 즉 n 개인경우 n-1 번
+      const detailCount = await this.prisma.typhoonDetail.count({
+        where: { typhoon_id },
+      });
+      const skipArray = Array(detailCount - 1)
+        .fill(0)
+        .map((_, i) => i);
+      console.log(skipArray);
+      //이역시 순서 보장하기위함
+      for (const skip of skipArray) {
+        const typhoonDetailData = await this.prisma.typhoonDetail.findMany({
+          where: { typhoon_id },
+          skip: skip,
+          orderBy: { observation_date: 'desc' },
+          take: 2,
+          include: {
+            around_weathers_circle: true,
+          },
+        });
 
-  //       await this.predictTyphoon2(
-  //         { ...typhoon, historical_details: data, typhoon_id },
-  //         12,
-  //         6,
-  //       );
-  //     }
-  //   }
-  // }
+        await this.predictTyphoonCircle(
+          { ...typhoon, historical_details: typhoonDetailData, typhoon_id },
+          12,
+          6,
+        );
+      }
+    }
+  }
+  async setDBPredictGrid() {
+    const allTyphoondata = await this.prisma.typhoon.findMany({
+      orderBy: { typhoon_id: 'asc' },
+    });
+    // 순서를 보장하기위함
+    for (const typhoon of allTyphoondata) {
+      const { typhoon_id } = typhoon;
+      // 4 개인경우 [1,2] [2.3] [3,4] 총 세번
+      // 6 개인경우 [1,2] [2.3] [3,4] [4,5] [5,6] 총 다섯번
+      // 즉 n 개인경우 n-1 번
+      const detailCount = await this.prisma.typhoonDetail.count({
+        where: { typhoon_id },
+      });
+      const skipArray = Array(detailCount - 1)
+        .fill(0)
+        .map((_, i) => i);
+      console.log(skipArray);
+      //이역시 순서 보장하기위함
+      for (const skip of skipArray) {
+        const typhoonDetailData = await this.prisma.typhoonDetail.findMany({
+          where: { typhoon_id },
+          skip: skip,
+          orderBy: { observation_date: 'desc' },
+          take: 2,
+          include: {
+            around_weathers_grid: true,
+          },
+        });
+        // console.log(typhoonDetailData.length);
+        await this.predictTyphoonGrid(
+          { ...typhoon, historical_details: typhoonDetailData, typhoon_id },
+          12,
+          6,
+        );
+      }
+    }
+  }
+
+  async setDBPredictCircleWithWeatherPrediction() {
+    const allTyphoondata = await this.prisma.typhoon.findMany({
+      orderBy: { typhoon_id: 'desc' },
+    });
+    // 순서를 보장하기위함
+    for (const typhoon of allTyphoondata) {
+      const { typhoon_id } = typhoon;
+      // 4 개인경우 [1,2] [2.3] [3,4] 총 세번
+      // 6 개인경우 [1,2] [2.3] [3,4] [4,5] [5,6] 총 다섯번
+      // 즉 n 개인경우 n-1 번
+      const detailCount = await this.prisma.typhoonDetail.count({
+        where: { typhoon_id },
+      });
+      const skipArray = Array(detailCount - 1)
+        .fill(0)
+        .map((_, i) => i);
+      console.log(skipArray);
+      //이역시 순서 보장하기위함
+      for (const skip of skipArray) {
+        const typhoonDetailData = await this.prisma.typhoonDetail.findMany({
+          where: { typhoon_id },
+          skip: skip,
+          orderBy: { observation_date: 'desc' },
+          take: 2,
+          include: {
+            around_weathers_circle: true,
+          },
+        });
+
+        await this.predictTyphoonCircleWithWeatherPredictionPast(
+          { ...typhoon, historical_details: typhoonDetailData, typhoon_id },
+          12,
+          6,
+        );
+      }
+    }
+  }
+  async setDBPredictGridWithWeatherPrediction() {
+    const allTyphoondata = await this.prisma.typhoon.findMany({
+      orderBy: { typhoon_id: 'desc' },
+    });
+    // 순서를 보장하기위함
+    for (const typhoon of allTyphoondata) {
+      const { typhoon_id } = typhoon;
+      // 4 개인경우 [1,2] [2.3] [3,4] 총 세번
+      // 6 개인경우 [1,2] [2.3] [3,4] [4,5] [5,6] 총 다섯번
+      // 즉 n 개인경우 n-1 번
+      const detailCount = await this.prisma.typhoonDetail.count({
+        where: { typhoon_id },
+      });
+      const skipArray = Array(detailCount - 1)
+        .fill(0)
+        .map((_, i) => i);
+      console.log(skipArray);
+      //이역시 순서 보장하기위함
+      for (const skip of skipArray) {
+        const typhoonDetailData = await this.prisma.typhoonDetail.findMany({
+          where: { typhoon_id },
+          skip: skip,
+          orderBy: { observation_date: 'desc' },
+          take: 2,
+          include: {
+            around_weathers_grid: true,
+          },
+        });
+
+        await this.predictTyphoonGridWithWeatherPredictionPast(
+          { ...typhoon, historical_details: typhoonDetailData, typhoon_id },
+          12,
+          6,
+        );
+      }
+    }
+  }
 
   async test() {
-    const count = await this.prisma.typhoonPrediction.findMany({
+    const count = await this.prisma.typhoonPredictionCircle.findMany({
       where: {
         observation_date: {
           gte: new Date('2022-01-01'),
@@ -396,6 +903,35 @@ export class TyphoonService {
         );
       }),
     );
+  }
+
+  async gridTest() {
+    return this.prisma.typhoon.findFirst({
+      include: {
+        historical_details: {
+          take: 2,
+          orderBy: { observation_date: 'desc' },
+          include: {
+            around_weathers_grid: true,
+          },
+        },
+      },
+    });
+  }
+
+  async setDBPredictGridTest() {
+    const typhoon = await this.prisma.typhoon.findFirst({
+      include: {
+        historical_details: {
+          take: 2,
+          orderBy: { observation_date: 'desc' },
+          include: {
+            around_weathers_grid: true,
+          },
+        },
+      },
+    });
+    await this.predictTyphoonGrid(typhoon);
   }
 
   // async setDB() {

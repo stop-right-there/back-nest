@@ -77,8 +77,10 @@ model TyphoonDetail {
   around_weathers_circle    TyphoonAroundWeatherCircle[]
   around_weathers_grid    TyphoonAroundWeatherGrid[]
   typhoon            Typhoon                @relation(fields: [typhoon_id], references: [typhoon_id])
-  predictions         TyphoonPrediction[]
-
+  predictions_circle         TyphoonPredictionCircle[]
+  predictions_grid         TyphoonPredictionGrid[]
+  predictions_circle_with_weather_prediction         TyphoonPredictionCircleWithAroundWeatherPrediction[]
+  predictions_grid_with_weather_prediction         TyphoonPredictionGridWithAroundWeatherPrediction[]
   @@id([typhoon_id, observation_date])
   @@map("typhoon_details")
 }
@@ -105,7 +107,6 @@ model TyphoonAroundWeatherCircle {
   updated_at               DateTime      @default(now()) @updatedAt
   typhoon                  Typhoon       @relation(fields: [typhoon_id], references: [typhoon_id])
   typhoon_detail           TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-
   @@id([typhoon_id, observation_date, point,distance])
   @@map("typhoon_around_weathers_circle")
 }
@@ -136,7 +137,7 @@ model TyphoonAroundWeatherGrid {
   @@map("typhoon_around_weathers_grid")
 }
 
-model TyphoonPrediction {
+model TyphoonPredictionGrid {
   typhoon_id         String        @db.VarChar(100)
   observation_date   DateTime
   prediction_date    DateTime
@@ -148,8 +149,59 @@ model TyphoonPrediction {
   detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
   
   @@id([typhoon_id, observation_date, prediction_date])
-  @@map("typhoon_predictions")
+  @@map("typhoon_predictions_grid")
 }
+
+model TyphoonPredictionCircle {
+
+  typhoon_id         String        @db.VarChar(100)
+  observation_date   DateTime
+  prediction_date    DateTime
+  central_longitude  Float
+  central_latitude   Float
+  central_pressure   Float?
+  maximum_wind_speed Float?
+  grade              GRADE_TYPE?
+  detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
+  
+  @@id([typhoon_id, observation_date, prediction_date])
+  @@map("typhoon_predictions_circle")
+
+}
+
+model TyphoonPredictionGridWithAroundWeatherPrediction {
+  typhoon_id         String        @db.VarChar(100)
+  observation_date   DateTime
+  prediction_date    DateTime
+  central_longitude  Float
+  central_latitude   Float
+  central_pressure   Float?
+  maximum_wind_speed Float?
+  grade              GRADE_TYPE?
+  detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
+  
+  @@id([typhoon_id, observation_date, prediction_date])
+  @@map("typhoon_predictions_grid_with_around_weather_prediction")
+}
+
+model TyphoonPredictionCircleWithAroundWeatherPrediction {
+
+  typhoon_id         String        @db.VarChar(100)
+  observation_date   DateTime
+  prediction_date    DateTime
+  central_longitude  Float
+  central_latitude   Float
+  central_pressure   Float?
+  maximum_wind_speed Float?
+  grade              GRADE_TYPE?
+  detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
+  
+  @@id([typhoon_id, observation_date, prediction_date])
+  @@map("typhoon_predictions_circle_with_around_weather_prediction")
+
+}
+
+
 
 enum GRADE_TYPE {
   TD
@@ -161,6 +213,7 @@ enum GRADE_TYPE {
   H5
   TY
   STY
+  STS
 }
 
 enum SOURCE {
