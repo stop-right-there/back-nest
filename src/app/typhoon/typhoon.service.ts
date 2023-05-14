@@ -222,7 +222,6 @@ export class TyphoonService {
                 query_hour: query_hour * (i + 1),
               });
 
-            console.log(result);
             return result;
           } catch (e) {}
         }),
@@ -276,7 +275,6 @@ export class TyphoonService {
     if (existPredictions.length > 0) {
       return;
     }
-
     const predict: IPredictResponse[] = await Promise.all(
       Array(count)
         .fill(0)
@@ -287,9 +285,10 @@ export class TyphoonService {
                 ...data,
                 query_hour: query_hour * (i + 1),
               });
-            console.log(result);
             return result;
-          } catch (e) {}
+          } catch (e) {
+            console.log('GRID PREDICT ERROR', e);
+          }
         }),
     );
 
@@ -351,7 +350,6 @@ export class TyphoonService {
     })[][] = [historical_details];
     const predict: IPredictResponse[] = [];
     for (let i = 0; i < count; i++) {
-      console.log(i);
       const { data: result }: { data: IPredictResponse } =
         await this.httpService.axiosRef
           .post(predict_url, {

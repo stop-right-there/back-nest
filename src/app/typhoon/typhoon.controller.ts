@@ -207,11 +207,17 @@ export class TyphoonController {
   // return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   // }
 
-  // @Post('/db/set')
-  // async setDB() {
-  //   const typhoonPrediction = await this.typhoonService.setDB();
-  //   return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
-  // }
+  @Post('/test/test')
+  async setDB() {
+    const typhoonPrediction =
+      await this.typhoonScheduler.nullPredictionUpdate();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
+  @Post('/test/test/test')
+  async setDB2() {
+    const typhoonPrediction = await this.typhoonScheduler.test();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
   @Post('/db/set/predict/circle')
   async setDBPredictCircle() {
     const typhoonPrediction = await this.typhoonService.setDBPredictCircle();

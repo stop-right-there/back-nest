@@ -157,6 +157,7 @@ export class TyphoonUpdatedListener {
         central_longitude,
         maximum_wind_speed,
         grade,
+        grade_type: 'TY',
         central_pressure: pressure,
         around_weathers_circle: {
           createMany: { data: around_weathers_circle },

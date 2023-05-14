@@ -321,17 +321,92 @@ export class WeatherService {
           location,
           i,
         ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
-          const { latitude, longitude, bearing, distance } = location;
-          const wheather = await this.getTyphoonWeatherData({
-            date: observation_date,
-            long: longitude,
-            lat: latitude,
-          });
-          return {
-            distance,
-            point: bearing / 30,
-            ...wheather,
-          };
+          try {
+            const { latitude, longitude, bearing, distance } = location;
+            const wheather = await this.getTyphoonWeatherData({
+              date: observation_date,
+              long: longitude,
+              lat: latitude,
+            });
+            return {
+              distance,
+              point: bearing / 30,
+              ...wheather,
+            };
+          } catch (e) {
+            console.log(e);
+          }
+        },
+      ),
+    );
+  }
+
+  async getGridAroundWeatherDataPast(
+    central_latitude: number,
+    central_longitude: number,
+    observation_date: Date,
+  ) {
+    return await Promise.all(
+      generateCoordinates5x5(central_latitude, central_longitude).map(
+        async (
+          location,
+        ): Promise<Prisma.TyphoonAroundWeatherGridCreateManyTyphoon_detailInput> => {
+          const { latitude, longitude, x, y } = location;
+          try {
+            const wheather = await this.getTyphoonWeatherDataPast({
+              date: observation_date,
+              long: longitude,
+              lat: latitude,
+            });
+
+            return {
+              ...wheather,
+              x: Number(x),
+              y: Number(y),
+            };
+          } catch (e) {
+            console.log(e);
+          }
+        },
+      ),
+    );
+  }
+
+  async getCircleAroundWeatherDataPast(
+    central_latitude: number,
+    central_longitude: number,
+    observation_date: Date,
+  ) {
+    return await Promise.all(
+      [
+        {
+          latitude: central_latitude,
+          longitude: central_longitude,
+          bearing: 0,
+          distance: 0,
+        },
+        ...get12Coordinates(central_latitude, central_longitude, 750),
+        ...get12Coordinates(central_latitude, central_longitude, 1500),
+      ].map(
+        async (
+          location,
+          i,
+        ): Promise<Prisma.TyphoonAroundWeatherCircleCreateManyTyphoon_detailInput> => {
+          try {
+            const { latitude, longitude, bearing, distance } = location;
+            const wheather = await this.getTyphoonWeatherDataPast({
+              date: observation_date,
+              long: longitude,
+              lat: latitude,
+            });
+            return {
+              distance,
+              point: bearing / 30,
+              ...wheather,
+            };
+          } catch (e) {
+            console.log(e);
+          }
         },
       ),
     );
