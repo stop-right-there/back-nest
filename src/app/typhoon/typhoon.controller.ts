@@ -139,8 +139,6 @@ export class TyphoonController {
     @Param() { typhoon_id }: { typhoon_id: string },
   ): Promise<BaseApiResponse<TyphoonDetailResponse>> {
     const typhoon = await this.typhoonService.getTyphoonDetail(typhoon_id);
-    if (typhoon.end_date)
-      return new BaseApiResponse(baseApiResponeStatus.SUCCESS, { ...typhoon });
 
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, {
       ...typhoon,
