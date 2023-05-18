@@ -14,8 +14,8 @@ export class SmsService {
     const request = {
       type: 'SMS',
       countryCode: '82',
-      from: process.env.NAVER_PHONE_NUMBER,
-      to: [to],
+      from: process.env.SNES_PHONE_NUMBER,
+      to: ['01091464833'], //수신자 배열
       content: message,
     };
 

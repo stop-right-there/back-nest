@@ -6,7 +6,16 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+model User {
+  user_id      String   @id @db.Char(26)
+  lat          Float
+  lon          Float
+  phone_number String   @unique
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
 
+  @@map("users")
+}
 model Typhoon {
   typhoon_id         String                 @id @db.VarChar(100)
   gdacs_id           Int?                   @unique
@@ -25,56 +34,57 @@ model Typhoon {
 }
 
 model TyphoonDetail {
-  typhoon_id         String                 @db.VarChar(100)
-  observation_date   DateTime
-  central_longitude  Float
-  central_latitude   Float
-  central_pressure   Float
-  wind_radius        Float?
-  grade              Int?
-  grade_type         GRADE_TYPE?
-  created_at         DateTime               @default(now())
-  updated_at         DateTime               @default(now()) @updatedAt
-  maximum_wind_speed Float
-  se_long_34         Float?
-  se_lat_34          Float?
-  se_distance_34     Float?
-  sw_long_34         Float?
-  sw_lat_34          Float?
-  sw_distance_34     Float?
-  ne_long_34         Float?
-  ne_lat_34          Float?
-  ne_distance_34     Float?
-  nw_long_34         Float?
-  nw_lat_34          Float?
-  nw_distance_34     Float?
-  se_long_50         Float?
-  se_lat_50          Float?
-  se_distance_50     Float?
-  sw_long_50         Float?
-  sw_lat_50          Float?
-  sw_distance_50     Float?
-  ne_long_50         Float?
-  ne_lat_50          Float?
-  ne_distance_50     Float?
-  nw_long_50         Float?
-  nw_lat_50          Float?
-  nw_distance_50     Float?
-  se_long_64         Float?
-  se_lat_64          Float?
-  se_distance_64     Float?
-  sw_long_64         Float?
-  sw_lat_64          Float?
-  sw_distance_64     Float?
-  ne_long_64         Float?
-  ne_lat_64          Float?
-  ne_distance_64     Float?
-  nw_long_64         Float?
-  nw_lat_64          Float?
-  nw_distance_64     Float?
-  source             SOURCE                 @default(GDACS)
-  around_weathers    TyphoonAroundWeather[]
-  typhoon            Typhoon                @relation(fields: [typhoon_id], references: [typhoon_id])
+  typhoon_id          String                 @db.VarChar(100)
+  observation_date    DateTime
+  central_longitude   Float
+  central_latitude    Float
+  central_pressure    Float
+  wind_radius         Float?
+  grade               Int?
+  grade_type          GRADE_TYPE?
+  created_at          DateTime               @default(now())
+  updated_at          DateTime               @default(now()) @updatedAt
+  maximum_wind_speed  Float
+  se_long_34          Float?
+  se_lat_34           Float?
+  se_distance_34      Float?
+  sw_long_34          Float?
+  sw_lat_34           Float?
+  sw_distance_34      Float?
+  ne_long_34          Float?
+  ne_lat_34           Float?
+  ne_distance_34      Float?
+  nw_long_34          Float?
+  nw_lat_34           Float?
+  nw_distance_34      Float?
+  se_long_50          Float?
+  se_lat_50           Float?
+  se_distance_50      Float?
+  sw_long_50          Float?
+  sw_lat_50           Float?
+  sw_distance_50      Float?
+  ne_long_50          Float?
+  ne_lat_50           Float?
+  ne_distance_50      Float?
+  nw_long_50          Float?
+  nw_lat_50           Float?
+  nw_distance_50      Float?
+  se_long_64          Float?
+  se_lat_64           Float?
+  se_distance_64      Float?
+  sw_long_64          Float?
+  sw_lat_64           Float?
+  sw_distance_64      Float?
+  ne_long_64          Float?
+  ne_lat_64           Float?
+  ne_distance_64      Float?
+  nw_long_64          Float?
+  nw_lat_64           Float?
+  nw_distance_64      Float?
+  source              SOURCE                 @default(GDACS)
+  around_weathers     TyphoonAroundWeather[]
+  typhoon             Typhoon                @relation(fields: [typhoon_id], references: [typhoon_id])
+  typhoon_predictions typhoon_predictions[]
 
   @@id([typhoon_id, observation_date])
   @@map("typhoon_details")
@@ -106,6 +116,20 @@ model TyphoonAroundWeather {
   @@map("typhoon_around_weathers")
 }
 
+model typhoon_predictions {
+  typhoon_id         String                     @db.VarChar(100)
+  observation_date   DateTime
+  prediction_date    DateTime
+  central_longitude  Float
+  central_latitude   Float
+  central_pressure   Float?
+  maximum_wind_speed Float?
+  grade              typhoon_predictions_grade?
+  typhoon_details    TyphoonDetail              @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
+
+  @@id([typhoon_id, observation_date, prediction_date])
+}
+
 enum GRADE_TYPE {
   TD
   TS
@@ -121,4 +145,16 @@ enum GRADE_TYPE {
 enum SOURCE {
   GDACS
   AERISWEATHER
+}
+
+enum typhoon_predictions_grade {
+  TD
+  TS
+  H1
+  H2
+  H3
+  H4
+  H5
+  TY
+  STY
 }
