@@ -7,6 +7,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SmsModule } from './app/sms/sms.module';
+import { UserModule } from './app/user/user.module';
 import { configOption } from './common/option/config.option';
 import { PrismaModule } from './prisma/prisma.module';
 @Module({
@@ -20,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
     TyphoonModule,
     WeatherModule,
     SmsModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],
