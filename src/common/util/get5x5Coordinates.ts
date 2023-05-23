@@ -3,7 +3,7 @@ export function generateCoordinates5x5(
   lng: number,
   rowCount = 5,
   colCount = 5,
-  distance = 0.75,
+  distance = 750,
 ): {
   latitude: number;
   longitude: number;
@@ -11,25 +11,29 @@ export function generateCoordinates5x5(
   x: number;
   y: number;
 }[] {
-  const EARTH_RADIUS = 6371; // 지구의 반지름 (km);
+  const EARTH_RADIUS = 6371; // Earth's radius (km)
 
-  const dLat = (distance / EARTH_RADIUS) * (180 / Math.PI); // 위도 차이
-  const dLng =
-    (distance / (EARTH_RADIUS * Math.cos((Math.PI * lat) / 180))) *
-    (180 / Math.PI); // 경도 차이
+  const dLat = (distance / EARTH_RADIUS) * (180 / Math.PI); // Latitude difference
 
   const coordinates = [];
 
-  for (let i = -Math.floor(rowCount / 2); i <= Math.floor(rowCount / 2); i++) {
-    for (
-      let j = -Math.floor(colCount / 2);
-      j <= Math.floor(colCount / 2);
-      j++
-    ) {
-      const newLat = lat + i * dLat;
+  const startRow = -Math.floor(rowCount / 2);
+  const endRow = Math.floor(rowCount / 2);
+  const startCol = -Math.floor(colCount / 2);
+  const endCol = Math.floor(colCount / 2);
+
+  for (let i = startRow; i <= endRow; i++) {
+    const newLat = lat + i * dLat;
+
+    // Recalculate longitude difference for each latitude
+    const dLng =
+      (distance / (EARTH_RADIUS * Math.cos((Math.PI * newLat) / 180))) *
+      (180 / Math.PI); // Longitude difference
+
+    for (let j = startCol; j <= endCol; j++) {
       const newLng = lng + j * dLng;
 
-      // 사분면 계산
+      // Quadrant calculation
       let quadrant;
       if (i > 0 && j > 0) {
         quadrant = '1';
@@ -40,14 +44,13 @@ export function generateCoordinates5x5(
       } else if (i < 0 && j > 0) {
         quadrant = '4';
       } else {
-        quadrant = '0'; // 중앙
+        quadrant = '0'; // Center
       }
 
       coordinates.push({
         latitude: newLat,
         longitude:
           newLng > 180 ? newLng - 360 : newLng < -180 ? newLng + 360 : newLng,
-
         quadrant: quadrant,
         x: j === 0 ? '0' : j.toString(),
         y: i === 0 ? '0' : i.toString(),

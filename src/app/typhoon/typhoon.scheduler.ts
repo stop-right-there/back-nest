@@ -166,23 +166,25 @@ export class TyphoonScheduler {
                   observation_date,
                 )
                 .then((res) => {
-                  res.map((around_weather) => {
-                    this.prisma.typhoonAroundWeatherCircle.upsert({
-                      where: {
-                        typhoon_id_observation_date_point_distance: {
+                  res.map(async (around_weather) => {
+                    const a =
+                      await this.prisma.typhoonAroundWeatherCircle.upsert({
+                        where: {
+                          typhoon_id_observation_date_point_distance: {
+                            typhoon_id,
+                            observation_date,
+                            point: around_weather.point,
+                            distance: around_weather.distance,
+                          },
+                        },
+                        update: around_weather,
+                        create: {
+                          ...around_weather,
                           typhoon_id,
                           observation_date,
-                          point: around_weather.point,
-                          distance: around_weather.distance,
                         },
-                      },
-                      update: around_weather,
-                      create: {
-                        ...around_weather,
-                        typhoon_id,
-                        observation_date,
-                      },
-                    });
+                      });
+                    console.log(a);
                   });
                   return res;
                 })
@@ -193,8 +195,8 @@ export class TyphoonScheduler {
                   observation_date,
                 )
                 .then((res) => {
-                  res.map((around_weather) => {
-                    this.prisma.typhoonAroundWeatherCircle.upsert({
+                  res.map(async (around_weather) => {
+                    await this.prisma.typhoonAroundWeatherCircle.upsert({
                       where: {
                         typhoon_id_observation_date_point_distance: {
                           typhoon_id,
@@ -225,8 +227,8 @@ export class TyphoonScheduler {
                   observation_date,
                 )
                 .then((res) => {
-                  res.map((around_weather) => {
-                    this.prisma.typhoonAroundWeatherGrid.upsert({
+                  res.map(async (around_weather) => {
+                    await this.prisma.typhoonAroundWeatherGrid.upsert({
                       where: {
                         typhoon_id_observation_date_x_y: {
                           typhoon_id,
@@ -252,8 +254,8 @@ export class TyphoonScheduler {
                   observation_date,
                 )
                 .then((res) => {
-                  res.map((around_weather) => {
-                    this.prisma.typhoonAroundWeatherGrid.upsert({
+                  res.map(async (around_weather) => {
+                    await this.prisma.typhoonAroundWeatherGrid.upsert({
                       where: {
                         typhoon_id_observation_date_x_y: {
                           typhoon_id,

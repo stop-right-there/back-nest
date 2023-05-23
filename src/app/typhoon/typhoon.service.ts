@@ -6,12 +6,14 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   Prisma,
+  SOURCE,
   Typhoon,
   TyphoonAroundWeatherCircle,
   TyphoonAroundWeatherGrid,
   TyphoonDetail,
 } from '@prisma/client';
 import { PrismaService } from '@src/prisma/prisma.service';
+import * as fs from 'fs';
 import { IPredictResponse } from './type/predict.type';
 @Injectable()
 export class TyphoonService {
@@ -787,7 +789,7 @@ export class TyphoonService {
       const skipArray = Array(detailCount - 1)
         .fill(0)
         .map((_, i) => i);
-      console.log(skipArray);
+      // console.log(skipArray);
       //이역시 순서 보장하기위함
       for (const skip of skipArray) {
         const typhoonDetailData = await this.prisma.typhoonDetail.findMany({
@@ -932,93 +934,131 @@ export class TyphoonService {
     await this.predictTyphoonGrid(typhoon);
   }
 
-  // async setDB() {
-  //   const typhoon = fs.readFileSync('dataSet.json', 'utf-8');
-  //   const typhoonData = JSON.parse(typhoon).data;
-  //   const typhoon_datas = [];
-  //   const typhoon_detail_datas = [];
-  //   const around_weather_circle_datas = [];
-  //   const around_weather_grid_datas = [];
-  //   typhoonData.map(
-  //     (
-  //       data: {
-  //         typhoon_details: (TyphoonDetail & {
-  //           around_weathers_grid: TyphoonAroundWeatherGrid[];
-  //           around_weathers_circle: TyphoonAroundWeatherCircle[];
-  //         })[];
-  //       } & Typhoon,
-  //     ) => {
-  //       const { typhoon_details, ...info } = data;
-  //       typhoon_datas.push({
-  //         ...info,
-  //         gdacs_id: Number(info.gdacs_id),
-  //         start_date: new Date(info.start_date),
-  //         end_date: new Date(info.end_date),
-  //       });
-  //       const typhoon_detailList = typhoon_details.map(
-  //         ({
-  //           around_weathers_circle: _,
-  //           around_weathers_grid: __,
-  //           ...detail
-  //         }) => ({
-  //           ...detail,
-  //           grade: null,
-  //           central_longitude: Number(detail.central_longitude) / 10,
-  //           central_latitude: Number(detail.central_latitude) / 10,
-  //           central_pressure: Number(detail.central_pressure),
-  //           maximum_wind_speed: Number(detail.maximum_wind_speed),
-  //           observation_date: new Date(detail.observation_date),
-  //           // TD" | "TS" | "H1" | "H2" | "H3" | "H4" | "H5" | "TY" | "STY"
+  async setDB() {
+    const typhoon = fs.readFileSync('dataSet.json', 'utf-8');
+    const typhoonData = JSON.parse(typhoon).data;
+    const typhoon_datas = [];
+    const typhoon_detail_datas = [];
+    const around_weather_circle_datas = [];
+    const around_weather_grid_datas = [];
+    typhoonData.map(
+      (
+        data: {
+          typhoon_details: (TyphoonDetail & {
+            around_weathers_grid: TyphoonAroundWeatherGrid[];
+            around_weathers_circle: TyphoonAroundWeatherCircle[];
+          })[];
+        } & Typhoon,
+      ) => {
+        const { typhoon_details, ...info } = data;
+        typhoon_datas.push({
+          ...info,
+          gdacs_id: Number(info.gdacs_id),
+          start_date: new Date(info.start_date),
+          end_date: new Date(info.end_date),
+        });
+        const typhoon_detailList = typhoon_details.map(
+          ({
+            around_weathers_circle: _,
+            around_weathers_grid: __,
+            ...detail
+          }) => ({
+            ...detail,
+            grade: null,
+            central_longitude: Number(detail.central_longitude) / 10,
+            central_latitude: Number(detail.central_latitude) / 10,
+            central_pressure: Number(detail.central_pressure),
+            maximum_wind_speed: Number(detail.maximum_wind_speed),
+            observation_date: new Date(detail.observation_date),
+            // TD" | "TS" | "H1" | "H2" | "H3" | "H4" | "H5" | "TY" | "STY"
 
-  //           source: 'GDACS' as SOURCE,
-  //         }),
-  //       );
-  //       typhoon_detail_datas.push(...typhoon_detailList);
+            source: 'GDACS' as SOURCE,
+          }),
+        );
+        typhoon_detail_datas.push(...typhoon_detailList);
 
-  //       const around_weathers_circle = typhoon_details
-  //         .map(({ around_weathers_circle }) =>
-  //           around_weathers_circle.map((around_weather) => ({
-  //             ...around_weather,
-  //             observation_date: new Date(around_weather.observation_date),
-  //           })),
-  //         )
-  //         .reduce((acc, cur) => [...acc, ...cur], []);
-  //       around_weather_circle_datas.push(...around_weathers_circle);
+        const around_weathers_circle = typhoon_details
+          .map(({ around_weathers_circle }) =>
+            around_weathers_circle.map((around_weather) => ({
+              ...around_weather,
+              observation_date: new Date(around_weather.observation_date),
+            })),
+          )
+          .reduce((acc, cur) => [...acc, ...cur], []);
+        around_weather_circle_datas.push(...around_weathers_circle);
 
-  //       const around_weathers_grid = typhoon_details
-  //         .map(({ around_weathers_grid }) =>
-  //           around_weathers_grid.map((around_weather) => ({
-  //             ...around_weather,
-  //             observation_date: new Date(around_weather.observation_date),
-  //           })),
-  //         )
-  //         .reduce((acc, cur) => [...acc, ...cur], []);
-  //       around_weather_grid_datas.push(...around_weathers_grid);
-  //     },
-  //   );
-  //   console.log(typhoon_datas.length);
-  //   console.log(typhoon_detail_datas.length);
-  //   console.log(around_weather_circle_datas.length);
-  //   console.log(around_weather_grid_datas.length);
-  //   fs.writeFileSync(
-  //     'typhoons.json',
-  //     JSON.stringify([...typhoon_datas]),
-  //     'utf-8',
-  //   );
-  //   fs.writeFileSync(
-  //     'typhoon_details.json',
-  //     JSON.stringify([...typhoon_detail_datas]),
-  //     'utf-8',
-  //   );
-  //   fs.writeFileSync(
-  //     'around_weathers_circle.json',
-  //     JSON.stringify([...around_weather_circle_datas]),
-  //     'utf-8',
-  //   );
-  //   fs.writeFileSync(
-  //     'around_weathers_grid.json',
-  //     JSON.stringify([...around_weather_grid_datas]),
-  //     'utf-8',
-  //   );
-  // }
+        const around_weathers_grid = typhoon_details
+          .map(({ around_weathers_grid }) =>
+            around_weathers_grid.map((around_weather) => ({
+              ...around_weather,
+              observation_date: new Date(around_weather.observation_date),
+            })),
+          )
+          .reduce((acc, cur) => [...acc, ...cur], []);
+        around_weather_grid_datas.push(...around_weathers_grid);
+      },
+    );
+    console.log(typhoon_datas.length);
+    console.log(typhoon_detail_datas.length);
+    console.log(around_weather_circle_datas.length);
+    console.log(around_weather_grid_datas.length);
+    fs.writeFileSync(
+      'typhoons.json',
+      JSON.stringify([...typhoon_datas]),
+      'utf-8',
+    );
+    fs.writeFileSync(
+      'typhoon_details.json',
+      JSON.stringify([...typhoon_detail_datas]),
+      'utf-8',
+    );
+    fs.writeFileSync(
+      'around_weathers_circle.json',
+      JSON.stringify([...around_weather_circle_datas]),
+      'utf-8',
+    );
+    fs.writeFileSync(
+      'around_weathers_grid.json',
+      JSON.stringify([...around_weather_grid_datas]),
+      'utf-8',
+    );
+  }
+
+  async updateLongitudeAndLatitude() {
+    const typhoons = await this.prisma.typhoonDetail.findMany({
+      where: {
+        OR: [
+          {
+            central_longitude: {
+              gte: 180,
+            },
+          },
+          {
+            central_longitude: {
+              lte: -180,
+            },
+          },
+        ],
+      },
+    });
+    console.log(typhoons);
+    typhoons.map(async (d) => {
+      await this.prisma.typhoonDetail.update({
+        where: {
+          typhoon_id_observation_date: {
+            typhoon_id: d.typhoon_id,
+            observation_date: d.observation_date,
+          },
+        },
+        data: {
+          central_longitude:
+            d.central_longitude > 180
+              ? d.central_longitude - 360
+              : d.central_longitude < -180
+              ? d.central_longitude + 360
+              : d.central_longitude,
+        },
+      });
+    });
+  }
 }

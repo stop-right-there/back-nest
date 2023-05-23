@@ -334,7 +334,7 @@ export class WeatherService {
               ...wheather,
             };
           } catch (e) {
-            console.log(e);
+            console.log('getCircleAroundWeatherData');
           }
         },
       ),
