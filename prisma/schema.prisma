@@ -6,16 +6,7 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-model User {
-  user_id      String   @id @db.Char(26)
-  lat          Float
-  lon          Float
-  phone_number String   @unique
-  created_at   DateTime @default(now())
-  updated_at   DateTime @default(now()) @updatedAt
 
-  @@map("users")
-}
 model Typhoon {
   typhoon_id             String                       @id @db.VarChar(100)
   gdacs_id               Int?                         @unique
