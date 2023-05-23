@@ -8,79 +8,80 @@ datasource db {
 }
 
 model Typhoon {
-  typhoon_id         String                 @id @db.VarChar(100)
-  gdacs_id           Int?                   @unique
-  aerisweather_id    String?                @unique
-  name               String                 @unique @db.VarChar(30)
-  start_date         DateTime
-  end_date           DateTime?
-  created_at         DateTime               @default(now())
-  updated_at         DateTime               @default(now()) @updatedAt
-  aerisweather_name  String?                @db.VarChar(30)
-  gdacs_name         String?                @db.VarChar(30)
-  around_weathers_circle    TyphoonAroundWeatherCircle[]
-  around_weathers_grid    TyphoonAroundWeatherGrid[]
-  historical_details TyphoonDetail[]
+  typhoon_id             String                       @id @db.VarChar(100)
+  gdacs_id               Int?                         @unique
+  aerisweather_id        String?                      @unique
+  name                   String                       @unique @db.VarChar(30)
+  start_date             DateTime
+  end_date               DateTime?
+  created_at             DateTime                     @default(now())
+  updated_at             DateTime                     @default(now()) @updatedAt
+  aerisweather_name      String?                      @db.VarChar(30)
+  gdacs_name             String?                      @db.VarChar(30)
+  around_weathers_circle TyphoonAroundWeatherCircle[]
+  around_weathers_grid   TyphoonAroundWeatherGrid[]
+  historical_details     TyphoonDetail[]
 
   @@map("typhoons")
 }
 
 model TyphoonDetail {
-  typhoon_id         String                 @db.VarChar(100)
-  observation_date   DateTime
-  central_longitude  Float
-  central_latitude   Float
-  central_pressure   Float
-  wind_radius        Float?
-  grade              Int?
-  grade_type         GRADE_TYPE?
-  created_at         DateTime               @default(now())
-  updated_at         DateTime               @default(now()) @updatedAt
-  maximum_wind_speed Float
-  se_long_34         Float?
-  se_lat_34          Float?
-  se_distance_34     Float?
-  sw_long_34         Float?
-  sw_lat_34          Float?
-  sw_distance_34     Float?
-  ne_long_34         Float?
-  ne_lat_34          Float?
-  ne_distance_34     Float?
-  nw_long_34         Float?
-  nw_lat_34          Float?
-  nw_distance_34     Float?
-  se_long_50         Float?
-  se_lat_50          Float?
-  se_distance_50     Float?
-  sw_long_50         Float?
-  sw_lat_50          Float?
-  sw_distance_50     Float?
-  ne_long_50         Float?
-  ne_lat_50          Float?
-  ne_distance_50     Float?
-  nw_long_50         Float?
-  nw_lat_50          Float?
-  nw_distance_50     Float?
-  se_long_64         Float?
-  se_lat_64          Float?
-  se_distance_64     Float?
-  sw_long_64         Float?
-  sw_lat_64          Float?
-  sw_distance_64     Float?
-  ne_long_64         Float?
-  ne_lat_64          Float?
-  ne_distance_64     Float?
-  nw_long_64         Float?
-  nw_lat_64          Float?
-  nw_distance_64     Float?
-  source             SOURCE                 @default(GDACS)
-  around_weathers_circle    TyphoonAroundWeatherCircle[]
-  around_weathers_grid    TyphoonAroundWeatherGrid[]
-  typhoon            Typhoon                @relation(fields: [typhoon_id], references: [typhoon_id])
-  predictions_circle         TyphoonPredictionCircle[]
-  predictions_grid         TyphoonPredictionGrid[]
-  predictions_circle_with_weather_prediction         TyphoonPredictionCircleWithAroundWeatherPrediction[]
-  predictions_grid_with_weather_prediction         TyphoonPredictionGridWithAroundWeatherPrediction[]
+  typhoon_id                                 String                                               @db.VarChar(100)
+  observation_date                           DateTime
+  central_longitude                          Float
+  central_latitude                           Float
+  central_pressure                           Float
+  wind_radius                                Float?
+  grade                                      Int?
+  grade_type                                 GRADE_TYPE?
+  created_at                                 DateTime                                             @default(now())
+  updated_at                                 DateTime                                             @default(now()) @updatedAt
+  maximum_wind_speed                         Float
+  se_long_34                                 Float?
+  se_lat_34                                  Float?
+  se_distance_34                             Float?
+  sw_long_34                                 Float?
+  sw_lat_34                                  Float?
+  sw_distance_34                             Float?
+  ne_long_34                                 Float?
+  ne_lat_34                                  Float?
+  ne_distance_34                             Float?
+  nw_long_34                                 Float?
+  nw_lat_34                                  Float?
+  nw_distance_34                             Float?
+  se_long_50                                 Float?
+  se_lat_50                                  Float?
+  se_distance_50                             Float?
+  sw_long_50                                 Float?
+  sw_lat_50                                  Float?
+  sw_distance_50                             Float?
+  ne_long_50                                 Float?
+  ne_lat_50                                  Float?
+  ne_distance_50                             Float?
+  nw_long_50                                 Float?
+  nw_lat_50                                  Float?
+  nw_distance_50                             Float?
+  se_long_64                                 Float?
+  se_lat_64                                  Float?
+  se_distance_64                             Float?
+  sw_long_64                                 Float?
+  sw_lat_64                                  Float?
+  sw_distance_64                             Float?
+  ne_long_64                                 Float?
+  ne_lat_64                                  Float?
+  ne_distance_64                             Float?
+  nw_long_64                                 Float?
+  nw_lat_64                                  Float?
+  nw_distance_64                             Float?
+  source                                     SOURCE                                               @default(GDACS)
+  around_weathers_circle                     TyphoonAroundWeatherCircle[]
+  around_weathers_grid                       TyphoonAroundWeatherGrid[]
+  typhoon                                    Typhoon                                              @relation(fields: [typhoon_id], references: [typhoon_id])
+  predictions_circle                         TyphoonPredictionCircle[]
+  predictions_circle_with_weather_prediction TyphoonPredictionCircleWithAroundWeatherPrediction[]
+  predictions_grid                           TyphoonPredictionGrid[]
+  predictions_grid_with_weather_prediction   TyphoonPredictionGridWithAroundWeatherPrediction[]
+
   @@id([typhoon_id, observation_date])
   @@map("typhoon_details")
 }
@@ -107,14 +108,16 @@ model TyphoonAroundWeatherCircle {
   updated_at               DateTime      @default(now()) @updatedAt
   typhoon                  Typhoon       @relation(fields: [typhoon_id], references: [typhoon_id])
   typhoon_detail           TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-  @@id([typhoon_id, observation_date, point,distance])
+
+  @@id([typhoon_id, observation_date, point, distance])
   @@map("typhoon_around_weathers_circle")
 }
+
 model TyphoonAroundWeatherGrid {
   typhoon_id               String        @db.VarChar(100)
   observation_date         DateTime
-  x                    Int
-  y                 Int
+  x                        Int
+  y                        Int
   temperature_2m           Float?
   relativehumidity_2m      Float?
   apparent_temperature     Float?
@@ -133,7 +136,7 @@ model TyphoonAroundWeatherGrid {
   typhoon                  Typhoon       @relation(fields: [typhoon_id], references: [typhoon_id])
   typhoon_detail           TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
 
-  @@id([typhoon_id, observation_date, x,y])
+  @@id([typhoon_id, observation_date, x, y])
   @@map("typhoon_around_weathers_grid")
 }
 
@@ -147,13 +150,12 @@ model TyphoonPredictionGrid {
   maximum_wind_speed Float?
   grade              GRADE_TYPE?
   detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-  
+
   @@id([typhoon_id, observation_date, prediction_date])
   @@map("typhoon_predictions_grid")
 }
 
 model TyphoonPredictionCircle {
-
   typhoon_id         String        @db.VarChar(100)
   observation_date   DateTime
   prediction_date    DateTime
@@ -163,10 +165,9 @@ model TyphoonPredictionCircle {
   maximum_wind_speed Float?
   grade              GRADE_TYPE?
   detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-  
+
   @@id([typhoon_id, observation_date, prediction_date])
   @@map("typhoon_predictions_circle")
-
 }
 
 model TyphoonPredictionGridWithAroundWeatherPrediction {
@@ -179,13 +180,12 @@ model TyphoonPredictionGridWithAroundWeatherPrediction {
   maximum_wind_speed Float?
   grade              GRADE_TYPE?
   detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-  
+
   @@id([typhoon_id, observation_date, prediction_date])
   @@map("typhoon_predictions_grid_with_around_weather_prediction")
 }
 
 model TyphoonPredictionCircleWithAroundWeatherPrediction {
-
   typhoon_id         String        @db.VarChar(100)
   observation_date   DateTime
   prediction_date    DateTime
@@ -195,13 +195,10 @@ model TyphoonPredictionCircleWithAroundWeatherPrediction {
   maximum_wind_speed Float?
   grade              GRADE_TYPE?
   detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-  
+
   @@id([typhoon_id, observation_date, prediction_date])
   @@map("typhoon_predictions_circle_with_around_weather_prediction")
-
 }
-
-
 
 enum GRADE_TYPE {
   TD
