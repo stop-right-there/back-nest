@@ -6,7 +6,16 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+model User {
+  user_id      String   @id @db.Char(26)
+  lat          Float
+  lon          Float
+  phone_number String   @unique
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
 
+  @@map("users")
+}
 model Typhoon {
   typhoon_id             String                       @id @db.VarChar(100)
   gdacs_id               Int?                         @unique
@@ -26,6 +35,7 @@ model Typhoon {
 }
 
 model TyphoonDetail {
+
   typhoon_id                                 String                                               @db.VarChar(100)
   observation_date                           DateTime
   central_longitude                          Float
@@ -216,4 +226,16 @@ enum GRADE_TYPE {
 enum SOURCE {
   GDACS
   AERISWEATHER
+}
+
+enum typhoon_predictions_grade {
+  TD
+  TS
+  H1
+  H2
+  H3
+  H4
+  H5
+  TY
+  STY
 }

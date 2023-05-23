@@ -1,17 +1,13 @@
 import { TyphoonModule } from '@app/typhoon/typhoon.module';
 import { WeatherModule } from '@app/weather/weather.module';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
-import {
-  CacheModule,
-  Logger,
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-} from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SmsModule } from './app/sms/sms.module';
+import { UserModule } from './app/user/user.module';
 import { configOption } from './common/option/config.option';
 import { PrismaModule } from './prisma/prisma.module';
 @Module({
@@ -24,6 +20,8 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     TyphoonModule,
     WeatherModule,
+    SmsModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],
