@@ -35,15 +35,31 @@ export class SmsListener {
         const typhoonPrediction1 = typhoonPrediction;
         const typhoonPrediction2 = tyhoon_predictions[i + 1];
         const overpassCoords = [
-          typhoonPrediction1.central_latitude,
-          typhoonPrediction1.central_longitude,
-          typhoonPrediction2.central_latitude,
-          typhoonPrediction2.central_longitude,
+          typhoonPrediction1.central_latitude >
+          typhoonPrediction2.central_latitude
+            ? typhoonPrediction2.central_latitude
+            : typhoonPrediction1.central_latitude,
+
+          typhoonPrediction1.central_longitude >
+          typhoonPrediction2.central_longitude
+            ? typhoonPrediction2.central_longitude
+            : typhoonPrediction1.central_longitude,
+
+          typhoonPrediction2.central_latitude >
+          typhoonPrediction1.central_latitude
+            ? typhoonPrediction2.central_latitude
+            : typhoonPrediction1.central_latitude,
+
+          typhoonPrediction2.central_longitude >
+          typhoonPrediction1.central_longitude
+            ? typhoonPrediction2.central_longitude
+            : typhoonPrediction1.central_longitude,
         ];
         const cities = await this.weatherService.getCitiesByOverpass(
           overpassCoords,
         );
-        cities.forEach(async (city) => {
+        console.log(cities);
+        cities.forEach(async (city, i) => {
           const users = await this.smsService.getUserListByCity(city);
           users.forEach(async (user) => {
             //     await this.smsService.sendSms(
