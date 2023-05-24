@@ -1,6 +1,5 @@
 ## Objective
 
----
 
 SRT - Stop Right There은 태풍 경로 예측 모델을 활용한 태풍 정보 제공 및 알림 서비스입니다.
 
@@ -12,7 +11,6 @@ SRT - Stop Right There은 태풍 경로 예측 모델을 활용한 태풍 정보
 
 ## SKILL
 
----
 
 ### STACKs
 
@@ -36,11 +34,10 @@ SRT - Stop Right There은 태풍 경로 예측 모델을 활용한 태풍 정보
 
 ## ARCHITECTURE
 
----
 ![ex_screenshot](./img.png)
 ## DETAILS
 
----
+
 
 ### Typhoon
 
