@@ -33,8 +33,12 @@ export class WeatherService {
         };
         return emptyData;
       }
+
       const data = {
-        city: response.data[0].name,
+        city:
+          response.data[0].country === 'KR'
+            ? response.data[0].local_names['ko']
+            : response.data[0].name,
         country: response.data[0].country,
       };
       return data;
