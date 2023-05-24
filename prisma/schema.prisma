@@ -21,7 +21,8 @@ model Typhoon {
   around_weathers_circle TyphoonAroundWeatherCircle[]
   around_weathers_grid   TyphoonAroundWeatherGrid[]
   historical_details     TyphoonDetail[]
-
+  predictions_circle     TyphoonPredictionCircle[]
+  predictions_grid       TyphoonPredictionGrid[]
   @@map("typhoons")
 }
 
@@ -151,7 +152,7 @@ model TyphoonPredictionGrid {
   maximum_wind_speed Float?
   grade              GRADE_TYPE?
   detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-
+  typhoon            Typhoon       @relation(fields: [typhoon_id], references: [typhoon_id])
   @@id([typhoon_id, observation_date, prediction_date])
   @@map("typhoon_predictions_grid")
 }
@@ -166,7 +167,7 @@ model TyphoonPredictionCircle {
   maximum_wind_speed Float?
   grade              GRADE_TYPE?
   detail             TyphoonDetail @relation(fields: [typhoon_id, observation_date], references: [typhoon_id, observation_date])
-
+  typhoon            Typhoon       @relation(fields: [typhoon_id], references: [typhoon_id])
   @@id([typhoon_id, observation_date, prediction_date])
   @@map("typhoon_predictions_circle")
 }

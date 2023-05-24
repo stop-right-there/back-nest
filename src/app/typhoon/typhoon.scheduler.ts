@@ -107,7 +107,7 @@ export class TyphoonScheduler {
    */
   @Cron('0 0 * * * *')
   async observeAresWeatherTyphoon() {
-    const aerisData = await await this.httpService.axiosRef.get(
+    const aerisData = await this.httpService.axiosRef.get(
       aresWeatherURL({
         client_id: process.env.AERIS_CLIENT_ID,
         client_secret: process.env.AERIS_CLIENT_SECRET,

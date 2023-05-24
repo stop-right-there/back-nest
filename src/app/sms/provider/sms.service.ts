@@ -36,7 +36,7 @@ export class SmsService {
     return signature.toString();
   }
 
-  async sendSms(phone_number: string) {
+  async sendSms(phone_number: string, message: string) {
     //파라미터: 수신자 배열 넘기기
     const options = {
       headers: {
@@ -52,7 +52,7 @@ export class SmsService {
       contentType: 'COMM',
       countryCode: '82',
       from: process.env.SNES_PHONE_NUMBER, //발신자
-      content: `[SRT태풍알림]6시간 뒤 해당 지역 태풍 피해 예상`, //문자 내용
+      content: message, //문자 내용
       messages: [
         {
           to: phone_number, //수신자 배열

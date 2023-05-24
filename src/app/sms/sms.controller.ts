@@ -7,6 +7,6 @@ export class SmsController {
 
   @Post('/:phone_number')
   async sendSms(@Param('phone_number') phone_number: string) {
-    return await this.SmsService.sendSms(phone_number);
+    return await this.SmsService.sendSms(phone_number, 'test');
   }
 }

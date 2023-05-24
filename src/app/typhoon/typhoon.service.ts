@@ -14,6 +14,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '@src/prisma/prisma.service';
 import * as fs from 'fs';
+import { SmsListener } from './../sms/sms.event-listener';
 import { IPredictResponse } from './type/predict.type';
 @Injectable()
 export class TyphoonService {
@@ -22,6 +23,7 @@ export class TyphoonService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly weatherService: WeatherService,
+    private readonly smsListener: SmsListener,
   ) {}
 
   async getTyphoonDetail(typhoon_id: string) {
@@ -1059,6 +1061,25 @@ export class TyphoonService {
               : d.central_longitude,
         },
       });
+    });
+  }
+  async smsTest(typhoon_id: string, n = 1) {
+    const test = await this.prisma.typhoon.findFirst({
+      where: { typhoon_id },
+      include: {
+        historical_details: {
+          skip: n,
+          take: 1,
+          include: {
+            predictions_circle: true,
+            predictions_grid: true,
+          },
+        },
+      },
+    });
+    await this.smsListener.handleTyphoonSmsEvent({
+      name: test.name,
+      tyhoon_predictions: test.historical_details[0].predictions_circle,
     });
   }
 }

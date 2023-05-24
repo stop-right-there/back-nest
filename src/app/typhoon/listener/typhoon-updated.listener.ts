@@ -1,7 +1,7 @@
 import { parseGDACS_XML } from '@common/util/parseGDACS_XML';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { ulid } from 'ulid';
@@ -19,6 +19,7 @@ export class TyphoonUpdatedListener {
     private readonly prisma: PrismaService,
     private readonly weatherService: WeatherService,
     private readonly typhoonService: TyphoonService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -140,17 +141,31 @@ export class TyphoonUpdatedListener {
         start_date,
       };
       const around_weathers_circle =
-        await this.weatherService.getCircleAroundWeatherData(
-          central_latitude,
-          central_longitude,
-          observation_date,
-        );
+        observation_date.getTime() > new Date('2022-06-08').getTime()
+          ? await this.weatherService.getCircleAroundWeatherData(
+              central_latitude,
+              central_longitude,
+              observation_date,
+            )
+          : await this.weatherService.getCircleAroundWeatherDataPast(
+              central_latitude,
+              central_longitude,
+              observation_date,
+            );
+
       const around_weathers_grid =
-        await this.weatherService.getGridAroundWeatherData(
-          central_latitude,
-          central_longitude,
-          observation_date,
-        );
+        observation_date.getTime() > new Date('2022-06-08').getTime()
+          ? await this.weatherService.getGridAroundWeatherData(
+              central_latitude,
+              central_longitude,
+              observation_date,
+            )
+          : await this.weatherService.getGridAroundWeatherDataPast(
+              central_latitude,
+              central_longitude,
+              observation_date,
+            );
+
       const detail: Prisma.TyphoonDetailCreateWithoutTyphoonInput = {
         observation_date,
         central_latitude,
@@ -302,6 +317,32 @@ export class TyphoonUpdatedListener {
     await this.typhoonService.predictTyphoonCircle(preprocessed_data);
     await this.typhoonService.predictTyphoonGrid(preprocessed_data);
     // #endregion
+    const typhoonWithPredict = await this.prisma.typhoon.findFirst({
+      where: { typhoon_id: exist.typhoon_id },
+      include: {
+        predictions_circle: {
+          where: {
+            observation_date,
+          },
+        },
+        predictions_grid: {
+          where: {
+            observation_date,
+          },
+        },
+      },
+    });
+    //SMS 전송
+    typhoonWithPredict.predictions_circle.length > 0 &&
+      (await this.eventEmitter.emit('typhoon.sms', {
+        name: typhoonWithPredict.name,
+        tyhoon_predictions: typhoonWithPredict.predictions_circle,
+      }));
+    typhoonWithPredict.predictions_grid.length > 0 &&
+      (await this.eventEmitter.emit('typhoon.sms', {
+        name: typhoonWithPredict.name,
+        tyhoon_predictions: typhoonWithPredict.predictions_circle,
+      }));
   }
 
   @OnEvent('typhoon.aerisweather.updated')
@@ -536,6 +577,32 @@ export class TyphoonUpdatedListener {
       await this.typhoonService.predictTyphoonCircle(preprocessed_data);
       await this.typhoonService.predictTyphoonGrid(preprocessed_data);
       //예측데이터 추가
+      const typhoonWithPredict = await this.prisma.typhoon.findFirst({
+        where: { typhoon_id: exist.typhoon_id },
+        include: {
+          predictions_circle: {
+            where: {
+              observation_date,
+            },
+          },
+          predictions_grid: {
+            where: {
+              observation_date,
+            },
+          },
+        },
+      });
+      //SMS 전송
+      typhoonWithPredict.predictions_circle.length > 0 &&
+        (await this.eventEmitter.emit('typhoon.sms', {
+          name: typhoonWithPredict.name,
+          tyhoon_predictions: typhoonWithPredict.predictions_circle,
+        }));
+      typhoonWithPredict.predictions_grid.length > 0 &&
+        (await this.eventEmitter.emit('typhoon.sms', {
+          name: typhoonWithPredict.name,
+          tyhoon_predictions: typhoonWithPredict.predictions_circle,
+        }));
     }
     if (
       exist.historical_details.length > 0 &&

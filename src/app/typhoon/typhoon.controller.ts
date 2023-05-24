@@ -197,6 +197,11 @@ export class TyphoonController {
     return new BaseApiResponse(baseApiResponeStatus.SUCCESS, testBody);
   }
 
+  @Get('/sms/test/:typhoon_id')
+  async smsTest(@Param() { typhoon_id }: { typhoon_id: string }) {
+    await this.typhoonService.smsTest(typhoon_id);
+  }
+
   // @Post('/predict/test')
   // async predictTest2(@Body() body: any) {
   // const recent = await this.typhoonService.getRecentTyphoonData(
