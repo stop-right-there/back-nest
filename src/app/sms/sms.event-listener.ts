@@ -62,19 +62,11 @@ export class SmsListener {
         cities.forEach(async (city, i) => {
           const users = await this.smsService.getUserListByCity(city);
           users.forEach(async (user) => {
-            //     await this.smsService.sendSms(
-            //       user.phone,
-            //       `
-            //     ${typhoonPrediction1.observation_date}~${typhoonPrediction2.observation_date}에
-            //     ${user.city}에 태풍위험이 예측되었습니다.
-            //     태풍에 대비하여 주의하시기 바랍니다.
-            //     1. 비닐하우스, 창고, 배수구 등 외부 시설물을 고정시키고, 물건을 실내로 옮기세요.
-            //     2. 특히, 비닐하우스는 태풍이 지나가면 날아가기 쉽습니다.
-            //     3. 태풍이 지나가는 동안은 외출을 삼가하시고, 태풍이 지나간 후에도 피해가 없는지 확인하시기 바랍니다.
-            //     4. 태풍이 지나간 후에는 피해가 없는지 확인하시기 바랍니다.
-            //   `,
-            //     );
-
+            // await this.smsService.sendSms(
+            //   user.phone_number.replaceAll('-', ''),
+            //   `
+            //   ${user.city}에 태풍 ${name} 위험이 예측되었습니다.`,
+            // );
             //테스트용
             if (user)
               console.log(`

@@ -46,6 +46,7 @@ export class SmsService {
 
   async sendSms(phone_number: string, message: string) {
     //파라미터: 수신자 배열 넘기기
+
     const options = {
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -59,7 +60,7 @@ export class SmsService {
       type: 'SMS',
       contentType: 'COMM',
       countryCode: '82',
-      from: process.env.SNES_PHONE_NUMBER, //발신자
+      from: process.env.SENS_PHONE_NUMBER, //발신자
       content: message, //문자 내용
       messages: [
         {
@@ -78,7 +79,7 @@ export class SmsService {
       return response.status === 200;
     } catch (error) {
       console.log(this.SERVICE_ID);
-      console.log(error);
+      console.log(error.response.data);
       //this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
   }

@@ -1063,7 +1063,7 @@ export class TyphoonService {
       });
     });
   }
-  async smsTest(typhoon_id: string, n = 1) {
+  async smsTest(typhoon_id: string, n = 44) {
     const test = await this.prisma.typhoon.findFirst({
       where: { typhoon_id },
       include: {
