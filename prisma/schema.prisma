@@ -202,6 +202,13 @@ model TyphoonPredictionCircleWithAroundWeatherPrediction {
   @@map("typhoon_predictions_circle_with_around_weather_prediction")
 }
 
+model User {
+  phone_number String   @id @db.VarChar(100)
+  city        String
+  @@map("users")
+}
+
+
 enum GRADE_TYPE {
   TD
   TS

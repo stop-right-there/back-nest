@@ -1,13 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { WeatherService } from '@app/weather/provider/weather.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
+import { PrismaService } from '@src/prisma/prisma.service';
 import axios from 'axios';
 import * as crypto from 'crypto';
+import { SMSApplyDto } from '../sms-apply.dto';
 
 @Injectable()
 export class SmsService {
   private ACCESS_KEY_ID = process.env.SENS_ACCESS_KEY;
   private SECRET_KEY = process.env.SENS_SECRET_KEY;
   private SERVICE_ID = process.env.SENS_SERVICE_ID;
+
+  constructor(
+    private readonly weatherService: WeatherService,
+    private readonly prisma: PrismaService,
+  ) {}
   // private headers = {
   //   'Content-Type': 'application/json;charset=UTF-8',
   //   'x-ncp-apigw-timestamp': Date.now().toString(),
@@ -73,5 +81,33 @@ export class SmsService {
       console.log(error);
       //this.logger.error(`Error occurred: ${error.message}`, error.stack);
     }
+  }
+
+  async applyNotice(smsApplyDto: SMSApplyDto) {
+    const { phone_number, longitude, latitude } = smsApplyDto;
+    const { city } = await this.weatherService.getCity(latitude, longitude);
+    if (city === 'non-city')
+      throw new BadRequestException('존재하지 않는 지역입니다.');
+
+    return await this.prisma.user.upsert({
+      where: {
+        phone_number,
+      },
+      update: {
+        city,
+      },
+      create: {
+        phone_number,
+        city,
+      },
+    });
+  }
+
+  async getUserListByCity(city: string) {
+    return await this.prisma.user.findMany({
+      where: {
+        city,
+      },
+    });
   }
 }

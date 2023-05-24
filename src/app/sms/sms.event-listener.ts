@@ -44,8 +44,7 @@ export class SmsListener {
           overpassCoords,
         );
         cities.forEach(async (city) => {
-          const users = [{ phone: '01073616616', city }];
-          // const users = await this.smsService.getUsersByCity(city);
+          const users = await this.smsService.getUserListByCity(city);
           users.forEach(async (user) => {
             //     await this.smsService.sendSms(
             //       user.phone,
@@ -61,7 +60,8 @@ export class SmsListener {
             //     );
 
             //테스트용
-            console.log(`
+            if (user)
+              console.log(`
         [SRT] 태풍 경보 알림
         ${typhoonPrediction1.prediction_date}~${typhoonPrediction2.prediction_date}에
         ${user.city}에 태풍(${name})위험이 예측되었습니다.(기준 일자 : ${typhoonPrediction1.observation_date})
