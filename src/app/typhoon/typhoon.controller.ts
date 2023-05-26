@@ -6,6 +6,7 @@ import {
   Controller,
   Get,
   Param,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -211,13 +212,13 @@ export class TyphoonController {
   // return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   // }
 
-  // @Post('/test/test')
-  // async nullPredictionUpdate() {
-  //   const typhoonPrediction =
-  //     await this.typhoonScheduler.nullPredictionUpdate();
-  //   // await this.typhoonService.updateLongitudeAndLatitude();
-  //   return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
-  // }
+  @Post('/test/test')
+  async nullPredictionUpdate() {
+    const typhoonPrediction =
+      await this.typhoonScheduler.nullPredictionUpdate();
+    // await this.typhoonService.updateLongitudeAndLatitude();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
   // @Post('/test/setDB')
   // async setDBTest() {
   //   const typhoonPrediction = await this.typhoonService.setDB();
@@ -228,11 +229,11 @@ export class TyphoonController {
   //   const typhoonPrediction = await this.typhoonScheduler.test();
   //   return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
   // }
-  // @Post('/db/set/predict/circle')
-  // async setDBPredictCircle() {
-  //   const typhoonPrediction = await this.typhoonService.setDBPredictCircle();
-  //   return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
-  // }
+  @Post('/db/set/predict/circle')
+  async setDBPredictCircle() {
+    const typhoonPrediction = await this.typhoonService.setDBPredictCircle();
+    return new BaseApiResponse(baseApiResponeStatus.SUCCESS, typhoonPrediction);
+  }
 
   // @Post('/db/set/predict/grid')
   // async setDBPredictGrid() {

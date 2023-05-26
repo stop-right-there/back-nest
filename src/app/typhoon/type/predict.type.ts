@@ -15,5 +15,7 @@ export interface IPredictResponse {
   prediction_date: string;
   central_latitude: number;
   central_longitude: number;
+  central_pressure: number;
+  maximum_wind_speed: number;
   grade: number;
 }

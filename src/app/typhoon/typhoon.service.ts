@@ -225,7 +225,7 @@ export class TyphoonService {
                 ...data,
                 query_hour: query_hour * (i + 1),
               });
-
+            console.log(result.central_pressure);
             return result;
           } catch (e) {}
         }),
@@ -242,6 +242,8 @@ export class TyphoonService {
             central_latitude: p.central_latitude,
             central_longitude: p.central_longitude,
             grade: p.units.grade[p.grade],
+            central_pressure: p.central_pressure,
+            maximum_wind_speed: p.maximum_wind_speed,
           })),
       })
       .catch((e) => {
@@ -307,6 +309,8 @@ export class TyphoonService {
             central_latitude: p.central_latitude,
             central_longitude: p.central_longitude,
             grade: p.units.grade[p.grade],
+            central_pressure: p.central_pressure,
+            maximum_wind_speed: p.maximum_wind_speed,
           })),
       })
       .catch((e) => {
