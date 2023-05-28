@@ -286,6 +286,7 @@ export class TyphoonUpdatedListener {
       maximum_wind_speed,
       central_pressure: pressure,
       grade,
+      grade_type: 'TY',
     };
     // 태풍 상세정보를 DB에 추가합니다.
     try {
@@ -533,7 +534,7 @@ export class TyphoonUpdatedListener {
       central_latitude,
       maximum_wind_speed,
       central_pressure: pressure,
-      grade_type,
+      grade_type: grade_type === 'STY' ? 'TY' : grade_type,
       grade: Grade[grade_type],
       source: 'AERISWEATHER',
       ...radius,
